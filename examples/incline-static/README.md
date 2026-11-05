@@ -1,0 +1,41 @@
+# Demo — static friction on an incline
+
+This is a **synthetic** example created for the repository. It demonstrates the card shape, the figure spec, and the review status.
+
+## What it shows
+
+- A clean, solution-mark-free figure (`figures/fig-1.png`).
+- A redraw spec (`figures/fig-1.spec.json`) that records the constraints.
+- A complete `question.json` with answer, analysis, diagnosis, knowledge points, and review.
+- A rendered `card.md` and `card.docx`.
+- A clean, question-only `question.md`.
+
+## Files
+
+```text
+incline-static/
+├── question.json
+├── question.md
+├── card.md
+├── card.docx
+├── review.md
+├── figures/
+│   ├── fig-1.before.png
+│   ├── fig-1.png
+│   ├── fig-1.svg
+│   └── fig-1.spec.json
+└── source/
+    └── README.md
+```
+
+## Rebuild
+
+```bash
+python ../../scripts/validate_package.py question.json --root .
+python ../../scripts/build_card.py question.json \
+  --out card.md --question-out question.md --docx card.docx
+```
+
+## Note
+
+The figure is deliberately simple and does **not** include $N$, $f$, or $mg$. Those are solution marks. A real card may include a separate "student's marked figure" in the diagnosis section, but not in the clean question.

@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "id": "20260101-subject-topic-001",
+  "subject": "physics",
+  "grade": "高中一年级",
+  "source": {
+    "type": "screenshot",
+    "file": "source/original.png",
+    "page": 1,
+    "pages": [1],
+    "rights": "private-study",
+    "note": ""
+  },
+  "question": {
+    "type": "calculation",
+    "instruction_md": "",
+    "stem_md": "在此填写题干，保留全部条件、数据和单位。",
+    "subquestions": [
+      {
+        "label": "(1)",
+        "text_md": "在此填写第（1）问。",
+        "answer_md": ""
+      }
+    ],
+    "options": [],
+    "figure_refs": []
+  },
+  "figures": [],
+  "answer": {
+    "final_md": "在此填写最终答案。",
+    "units": "",
+    "confidence": "medium",
+    "alternate_md": "",
+    "verification_md": ""
+  },
+  "analysis": {
+    "steps_md": "1. 写明研究对象与已知条件。\n2. 写出关键关系或公式。\n3. 代入求解并检验。",
+    "key_points": [],
+    "pitfalls": []
+  },
+  "diagnosis": {
+    "student_answer_md": "",
+    "error_types": [],
+    "root_cause_md": "",
+    "remedy_md": ""
+  },
+  "meta": {
+    "knowledge_points": [],
+    "difficulty": 3,
+    "tags": [],
+    "variant_md": ""
+  },
+  "review": {
+    "status": "draft",
+    "reviewer": "",
+    "date": "",
+    "uncertainties": []
+  }
+}

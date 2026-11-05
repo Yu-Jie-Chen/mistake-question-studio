@@ -1,0 +1,48 @@
+{
+  "figure_id": "fig-1",
+  "kind": "physics-mechanics",
+  "canvas": {
+    "width": 1200,
+    "height": 800,
+    "background": "white"
+  },
+  "source_crop": [0, 0, 1200, 800],
+  "elements": [
+    {
+      "id": "incline",
+      "type": "line",
+      "p1": [160, 680],
+      "p2": [940, 92],
+      "style": "solid"
+    },
+    {
+      "id": "block",
+      "type": "polygon",
+      "points": [[603.8, 276.9], [637.0, 320.9], [541.2, 393.1], [508.0, 349.1]],
+      "fill": "white"
+    },
+    {
+      "id": "angle",
+      "type": "angle",
+      "vertex": [160, 680],
+      "from_deg": 0,
+      "to_deg": 37,
+      "radius": 100
+    },
+    {
+      "id": "label-m",
+      "type": "label",
+      "text": "m",
+      "at": [540, 246],
+      "font": "serif-italic"
+    }
+  ],
+  "constraints": [
+    "block base is parallel to the incline",
+    "the angle between the incline and the horizontal is 37°",
+    "no force arrows are shown"
+  ],
+  "removed_marks": [],
+  "labels_to_preserve": ["m", "37°"],
+  "confidence": "high"
+}

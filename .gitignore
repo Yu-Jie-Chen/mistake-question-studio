@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Working data (do not commit student work)
+work/
+*.tmp
+*.log
+
+# Build outputs
+*.docx
+!examples/**/card.docx
+
+# Local review exports
+review-local/

@@ -1,0 +1,42 @@
+{
+  "figure_id": "fig-1",
+  "kind": "physics-mechanics",
+  "canvas": {
+    "width": 1600,
+    "height": 1200,
+    "background": "white"
+  },
+  "source_crop": [0, 0, 0, 0],
+  "elements": [
+    {
+      "id": "obj-1",
+      "type": "line",
+      "p1": [0, 0],
+      "p2": [0, 0],
+      "style": "solid"
+    },
+    {
+      "id": "label-1",
+      "type": "label",
+      "text": "A",
+      "at": [0, 0],
+      "font": "serif-italic"
+    }
+  ],
+  "constraints": [
+    "写清楚必须保持的几何关系，例如：绳与斜面平行"
+  ],
+  "removed_marks": [
+    "N",
+    "f",
+    "mg"
+  ],
+  "labels_to_preserve": [
+    "A",
+    "B",
+    "v1",
+    "v2",
+    "L = 5 m"
+  ],
+  "confidence": "high"
+}

@@ -1,0 +1,24 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install core dependencies
+        run: pip install -r requirements.txt
+      - name: Byte-compile helpers
+        run: python -m py_compile scripts/*.py
+      - name: Validate the demo package
+        run: python scripts/validate_package.py examples/incline-static/question.json --root examples/incline-static
+      - name: Render the demo card
+        run: python scripts/build_card.py examples/incline-static/question.json --out /tmp/card.md
+      - name: Build the demo index
+        run: python scripts/build_index.py examples --out /tmp/index.md
