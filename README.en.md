@@ -26,6 +26,8 @@ Clone and place the folder where your agent discovers skills; the entry point is
 git clone https://github.com/Yu-Jie-Chen/mistake-question-studio.git
 ```
 
+> **DSH note:** the DSH Plugin Manager only installs npm bundles that declare `dsh.bundle.patch`. This repository is a **Skill**, not a plugin package. Install it under `~/.dsh/skills/`, not through “Install plugin”. The “no bundle declaration” error from the Plugin Manager is expected.
+
 Then ask:
 
 ```text

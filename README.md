@@ -112,6 +112,10 @@ git clone https://github.com/Yu-Jie-Chen/mistake-question-studio.git
 | Claude Code | `~/.claude/skills/mistake-question-studio/` |
 | 其他支持 `SKILL.md` 的 agent | 按其文档放入 skills 目录 |
 
+> **重要：DSH 的“插件管理”不能安装本项目。**  
+> 插件管理只接受 npm bundle（`package.json` 中声明 `dsh.bundle.patch`）；本仓库是 **Skill**，不是插件包。请把目录放到 `~/.dsh/skills/`，不要用“安装插件”。  
+> 如果你在插件管理里看到“这个包没有声明组合包，不能作为插件管理”，这是预期提示，不是仓库损坏。
+
 然后直接对 agent 说：
 
 ```text
