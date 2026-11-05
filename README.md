@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Subjects](https://img.shields.io/badge/subjects-physics%20%7C%20chemistry%20%7C%20math%20%7C%20English%20%7C%20more-blue.svg)](#支持科目)
 [![GitHub](https://img.shields.io/badge/GitHub-Yu--Jie--Chen-181717?logo=github)](https://github.com/Yu-Jie-Chen/mistake-question-studio)
+[![validate](https://github.com/Yu-Jie-Chen/mistake-question-studio/actions/workflows/validate.yml/badge.svg)](https://github.com/Yu-Jie-Chen/mistake-question-studio/actions/workflows/validate.yml)
 
 ---
 
