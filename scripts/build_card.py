@@ -227,6 +227,8 @@ class FormulaRenderer:
         latex = latex.replace(r"\left", "").replace(r"\right", "")
         latex = latex.replace(r"\dfrac", r"\frac")
         latex = re.sub(r"\\text\{([^{}]*)\}", r"\\mathrm{\1}", latex)
+        # Common shorthand: \frac12 -> \frac{1}{2}.
+        latex = re.sub(r"\\frac(\d)(\d)", r"\\frac{\1}{\2}", latex)
         latex = latex.replace(r"\%", "%")
         return latex
 
@@ -618,8 +620,7 @@ def build_docx(q: dict, root: Path, out: Path,
                 warnings.append(f"figure missing or unsupported for DOCX: {p}")
                 doc.add_paragraph(f"[图缺失：{fig.get('id', '')}]")
             if fig.get("caption"):
-                cap = doc.add_paragraph(fig["caption"])
-                cap.runs[0].italic = True
+                add_rich_text(doc, fig["caption"], docx_math, renderer, warnings)
 
     answer = q.get("answer", {})
     doc.add_heading("答案", level=1)
@@ -677,6 +678,10 @@ def build_docx(q: dict, root: Path, out: Path,
     doc.add_paragraph(f"状态：{review.get('status', 'draft')}")
     if review.get("uncertainties"):
         doc.add_paragraph("待确认：" + "；".join(review["uncertainties"]))
+
+    raw_dollars = [p.text for p in doc.paragraphs if "$" in p.text]
+    if raw_dollars:
+        warnings.append(f"raw LaTeX left in DOCX: {raw_dollars[0][:100]}")
 
     out.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(out))
@@ -782,6 +787,8 @@ def main() -> int:
         print("Warnings:", file=sys.stderr)
         for w in warnings:
             print(f"  - {w}", file=sys.stderr)
+        if args.strict:
+            return 1
     return 0
 
 
