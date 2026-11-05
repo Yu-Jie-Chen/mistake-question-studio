@@ -16,6 +16,17 @@ jobs:
         run: pip install -r requirements.txt -r requirements-formulas.txt
       - name: Byte-compile helpers
         run: python -m py_compile scripts/*.py
+      - name: Preflight the demo package
+        run: python scripts/preflight.py examples/incline-static
+      - name: Render the 3D figure spec template
+        run: |
+          python scripts/draw_solid.py templates/figure-spec-3d.json \
+            --out /tmp/fig.png --svg /tmp/fig.svg
+      - name: Smoke-test intake (contact sheet + stubs)
+        run: |
+          python scripts/intake.py examples/incline-static/figures/fig-1.before.png \
+            --id ci-smoke-001 --subject physics --grade "Grade 10" --work /tmp/work
+          python scripts/run.py status /tmp/work/ci-smoke-001
       - name: Validate the demo package
         run: python scripts/validate_package.py examples/incline-static/question.json --root examples/incline-static
       - name: Render the demo card with formulas and DOCX

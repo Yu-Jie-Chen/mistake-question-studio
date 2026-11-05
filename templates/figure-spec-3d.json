@@ -1,0 +1,36 @@
+{
+  "figure_id": "fig-1",
+  "notes": "Template for scripts/draw_solid.py. The numbers below are a worked example (a 刍甍: square base, ridge EF // base, equilateral end triangles, EF = 2*AB = 4). Replace vertices/faces; keep the face list closed (every edge in exactly two faces) or the hidden-line check will complain.",
+  "vertices": {
+    "A": [0, 0, 0],
+    "B": [2, 0, 0],
+    "C": [2, 2, 0],
+    "D": [0, 2, 0],
+    "E": [-1, 1, 1.4142135623730951],
+    "F": [3, 1, 1.4142135623730951]
+  },
+  "faces": [
+    ["A", "B", "C", "D"],
+    ["A", "B", "F", "E"],
+    ["D", "C", "F", "E"],
+    ["A", "D", "E"],
+    ["B", "C", "F"]
+  ],
+  "auto_orient": true,
+  "projection": {
+    "eye": [0.45, -0.85, 0.35],
+    "up": [0, 0, 1],
+    "scale": 300
+  },
+  "style": {
+    "line_width": 2.4,
+    "dash": [0.085, 0.052],
+    "font_size": 0.155,
+    "label_distance": 0.21,
+    "label_overrides": {"C": 0.26, "D": 0.30},
+    "margin": {"lr": 0.42, "t": 0.40, "b": 0.42}
+  },
+  "expect": {"AB": 2, "AD": 2, "EF": 4, "AE": 2, "DE": 2, "BF": 2, "CF": 2},
+  "sphere": true,
+  "caption_note": "EF:AB = 2:1, drawn to data; the eye is front-right-above so the hidden edges meet at D"
+}

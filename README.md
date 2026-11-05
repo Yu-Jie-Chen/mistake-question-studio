@@ -144,6 +144,15 @@ git clone https://github.com/Yu-Jie-Chen/mistake-question-studio.git
 ### 方式二：只用脚本
 
 ```bash
+# 0) 一次完成取件：建目录 + sha256 + 拼版大图（全文 + 放大块）+ 骨架文件
+python scripts/run.py new page.jpg --id 20260101-math-solid-001 --subject mathematics --grade 高中二年级
+python scripts/run.py status work/20260101-math-solid-001
+python scripts/run.py finish work/20260101-math-solid-001   # 预检 + 生成 + 校验
+
+# 0b) 立体几何配图：由三维模型直接算出（投影、隐藏线、校验一次给全）
+python scripts/draw_solid.py figures/fig-1.spec.json --out figures/fig-1.png \
+  --svg figures/fig-1.svg --before figures/fig-1.before.png --compare figures/compare-fig-1.png
+
 # 1) PDF 转页面图，或把照片标准化
 python scripts/prepare_scan.py input.pdf work/20260101-physics-001/source --dpi 300
 

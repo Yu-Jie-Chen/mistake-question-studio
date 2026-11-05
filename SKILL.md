@@ -145,6 +145,18 @@ For a folder of images/PDFs:
 The scripts are optional accelerators. Use them when Python 3.10+ is available; otherwise follow the same steps with the host's native tools.
 
 ```bash
+# 0. Whole intake in one call: folder + sha256 + contact sheet + stubs
+python scripts/run.py new page.jpg --id 20260101-math-solid-001 \
+  --subject mathematics --grade 高中二年级
+python scripts/run.py status work/20260101-math-solid-001    # where am I, what is stale
+python scripts/run.py finish work/20260101-math-solid-001    # preflight + build + validate
+
+# 0b. Solid-geometry figure from a 3D model (hidden edges are computed, not guessed)
+#     spec copied from templates/figure-spec-3d.json
+python scripts/draw_solid.py figures/fig-1.spec.json --out figures/fig-1.png \
+  --svg figures/fig-1.svg --before figures/fig-1.before.png \
+  --compare figures/compare-fig-1.png
+
 # 1. Render PDF pages or normalise images
 python scripts/prepare_scan.py input.pdf work/20260101-physics-001/source --dpi 300
 

@@ -230,14 +230,25 @@ Only after sign-off should the card enter a shared bank or public repository.
 ## Quick route (one image)
 
 Use when the user supplies one screenshot or one photo and wants one card.
+Intake is **one command** — do not probe the image with a dozen crops.
 
-1. Intake (30 seconds).
-2. Crop the question; keep a copy.
-3. Extract text with vision; mark uncertain symbols.
-4. Crop the figure; choose clean/redraw.
-5. Solve and write analysis.
-6. Build card.
-7. Show the user the clean figure and the card; ask for confirmation on any `[?]`.
+1. `python scripts/run.py new <image> --id <id> --subject <subject> --grade <grade>`
+   copies the source, records the sha256, writes the `manifest.json` /
+   `text/question.json` stubs and a `source/contact.png` that holds the full view
+   **and** the zoom tiles in one image.
+2. Read `source/contact.png` once, then transcribe into `text/question.json`.
+   The printed report also gives the ink bbox and an 8×4 ink-density map, which is
+   usually enough to choose a figure crop without another probe.
+3. Figure: for a solid, write `figures/fig-1.spec.json` from
+   `templates/figure-spec-3d.json` and run `scripts/draw_solid.py` — the
+   projection, the hidden edges (from face normals), the compare sheet and the
+   numeric checks (edge lengths, coplanarity, circumsphere) all come out of it.
+   For flat figures use `clean_figure.py`.
+4. `python scripts/run.py finish <workdir>` — preflight, build, validate, status.
+   Preflight catches the traps that otherwise cost a rebuild: decoy images in
+   `figures/` that get auto-embedded, subject-inappropriate `error_types`, a
+   duplicated "xx：" prefix, unbalanced `$`, leftover `[?]`/`TODO`.
+5. Fill `review.md`, then present the card.
 
 Do not build a batch index for a single card.
 
