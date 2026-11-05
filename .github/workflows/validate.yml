@@ -12,13 +12,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install core dependencies
-        run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-formulas.txt
       - name: Byte-compile helpers
         run: python -m py_compile scripts/*.py
       - name: Validate the demo package
         run: python scripts/validate_package.py examples/incline-static/question.json --root examples/incline-static
-      - name: Render the demo card
-        run: python scripts/build_card.py examples/incline-static/question.json --out /tmp/card.md
+      - name: Render the demo card with formulas and DOCX
+        run: |
+          python scripts/build_card.py examples/incline-static/question.json \
+            --out /tmp/card.md --question-out /tmp/question.md \
+            --docx /tmp/card.docx --formula-mode both --strict
       - name: Build the demo index
         run: python scripts/build_index.py examples --out /tmp/index.md

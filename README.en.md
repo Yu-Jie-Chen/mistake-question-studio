@@ -11,6 +11,8 @@ Mistake Question Studio is a subject-agnostic AI skill and lightweight Python to
 - extracts the stem, subquestions, options, formulas, and tables;
 - separates printed content from student/teacher handwriting;
 - crops, cleans, or redraws figures without solution marks;
+- embeds every figure in both Markdown and DOCX;
+- renders formulas as native Word equations and as Markdown formula images;
 - solves the question independently and writes a teachable analysis;
 - diagnoses the error instead of only marking it wrong;
 - exports Markdown and DOCX cards;
@@ -42,25 +44,27 @@ Or use the scripts directly:
 python scripts/prepare_scan.py input.pdf work/id/source --dpi 300
 python scripts/clean_figure.py raw.png figures/fig-1.png --crop 120,80,980,720 --trim
 python scripts/extract_pdf.py input.pdf text --pages 1-3
-python scripts/build_card.py text/question.json --out card.md --question-out text/question.md --docx card.docx
+python scripts/build_card.py text/question.json --out card.md --question-out text/question.md --docx card.docx --formula-mode both
 python scripts/validate_package.py text/question.json --root .
 python scripts/build_index.py work --out work/index.md
 ```
 
-Core dependencies: `pillow`, `numpy`. Optional: `pymupdf`, `pypdf`, `python-docx`, `pytesseract`.
+Core dependencies: `pillow`, `numpy`. PDF/OCR: `pymupdf`, `pypdf`, `pytesseract`. Formula/Word: `requirements-formulas.txt` (`python-docx`, `latex2mathml`, `mathml2omml`, `matplotlib`).
 
 ## Design principles
 
 1. Source fidelity before beautification.
 2. Separate the question, the student's answer, and the solution marks.
 3. Trace, do not invent, when redrawing a figure.
-4. Solve independently and record confidence.
-5. Keep every decision traceable: crop, mask, diagram spec, review note.
-6. Require a human review gate before publishing.
+4. Figures must be embedded in both outputs, not merely stored.
+5. Formulas must be rendered (OMML or images), not left as raw `$...$`.
+6. Solve independently and record confidence.
+7. Keep every decision traceable: crop, mask, diagram spec, review note.
+8. Require a human review gate before publishing.
 
 ## Demo
 
-See [`examples/incline-static/`](examples/incline-static/): a synthetic physics question with a clean figure, `question.json`, `card.md`, and a figure spec.
+See [`examples/incline-static/`](examples/incline-static/): a synthetic physics question with a clean embedded figure, native Word equations, `card.md`, `card.docx`, `card.latex.md`, and a figure spec.
 
 ## Documentation
 

@@ -131,6 +131,8 @@ Use Markdown + LaTeX. Keep the source language.
 | `removed_marks` | no | list of hand-drawn marks removed |
 | `labels_preserved` | no | exact labels retained |
 
+Every figure must be embedded in both `card.md` and `card.docx`; a figure that exists only in `figures/` is a failed build. For DOCX embedding, use PNG/JPG/JPEG/WebP. Keep SVG alongside as an editable source, not as the only figure.
+
 ### `answer` (required)
 
 ```json
@@ -208,8 +210,8 @@ Allowed `status`: `draft`, `reviewed`, `published`.
 
 ## Markdown conventions
 
-- Inline math: `$...$`.
-- Display math: `$$...$$` on its own lines.
+- Inline math: `$...$` in `question.json`; the builder renders it to `formulas/eq-*.png` for `card.md` and to OMML for `card.docx`.
+- Display math: `$$...$$` on its own lines in the source; rendered as a centered formula block in the outputs.
 - Blanks: `____` (four underscores) or the source's line.
 - Options: one per line, `A. ...`.
 - Tables: Markdown tables with units in the header.

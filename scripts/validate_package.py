@@ -125,6 +125,11 @@ def validate_one(path: Path, root: Path, allow_uncertain: bool, strict: bool):
         if ref not in fig_ids:
             add(errors, warnings, "error", f"question.figure_refs references missing figure: {ref}")
 
+    stem_text = str(question.get("stem_md", ""))
+    if any(word in stem_text for word in ("如图", "图中", "图示", "下表", "如表")) and not figures:
+        add(errors, warnings, "error",
+            "stem refers to a figure/table but figures[] is empty")
+
     # Placeholder / uncertainty scan.
     text_fields = [
         ("question.stem_md", question.get("stem_md", "")),

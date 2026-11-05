@@ -40,8 +40,9 @@ Run these gates before a card is marked `reviewed`. A blocking failure stops the
 - [ ] Before/after images exist.
 - [ ] Figure is legible at the card's display size.
 - [ ] `figures[].kind` and `confidence` are recorded.
+- [ ] The figure is embedded in **both** `card.md` and `card.docx` (not merely present in `figures/`).
 
-**Blocking:** wrong topology, missing label, solution marks left in, figure unreadable.
+**Blocking:** wrong topology, missing label, solution marks left in, figure unreadable, or figure missing from an output.
 
 ## Gate 4 — Answer
 
@@ -83,12 +84,16 @@ Run these gates before a card is marked `reviewed`. A blocking failure stops the
 - [ ] `validate_package.py` passes.
 - [ ] `card.md` renders without broken math or images.
 - [ ] `card.docx` opens and images are embedded.
+- [ ] `card.docx` contains native Word equations or formula images; it contains **no raw `$...$`**.
+- [ ] `card.md` formulas are rendered images or the target viewer renders `$...$`; raw source alone is not enough.
+- [ ] `card.latex.md` exists when `--formula-mode both` is used.
+- [ ] Every `formulas/eq-*.png` referenced by Markdown exists.
 - [ ] Markdown, DOCX, and JSON agree.
 - [ ] Figure paths are relative and exist.
 - [ ] ID is unique in the batch.
 - [ ] `review.status` is correct.
 
-**Blocking:** broken references, invalid JSON, mismatched answer between renderings.
+**Blocking:** broken references, invalid JSON, mismatched answer between renderings, raw LaTeX left in DOCX, or missing figure/formula assets.
 
 ## Gate 8 — Teaching quality
 

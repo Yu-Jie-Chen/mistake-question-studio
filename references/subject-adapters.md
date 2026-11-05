@@ -69,6 +69,8 @@ Load only the section for the current subject. These adapters refine the general
 - "过量/少量" omitted;
 - stereochemistry ignored.
 
+> The default formula renderer does **not** support mhchem `\ce{}`. Write `\mathrm{H_2O}`, `\mathrm{Fe^{2+}}`, `\rightarrow`, and `\rightleftharpoons` instead. If an equation is too complex for the renderer, set it as a clean formula image or use plain text with subscripts.
+
 ### Figure rules
 
 - Preserve apparatus geometry; do not replace a specific setup with a generic flask.

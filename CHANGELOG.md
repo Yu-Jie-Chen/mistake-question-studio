@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 — 2026-11-05
+
+- Figures are now discovered from `figures/` and embedded in both Markdown and DOCX.
+- Added formula rendering:
+  - Markdown uses `formulas/eq-*.png`;
+  - DOCX uses native Word equations (OMML), with image fallback;
+  - raw-LaTeX sidecars `card.latex.md` / `question.latex.md`.
+- Added `requirements-formulas.txt`.
+- Added figure/formula quality gates and a Word/PDF visual check.
+- Updated the demo with a native-equation DOCX and formula images.
+
 ## 0.1.0 — 2026-11-05
 
 Initial public release.

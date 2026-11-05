@@ -110,8 +110,9 @@ Rules:
 - Keep units outside math where possible: `$v=2\ \text{m/s}$`.
 - Do not convert fractions to decimals unless the question does.
 - Do not add parentheses that change grouping.
-- For chemistry, use `\ce{}` only if the renderer supports it; otherwise plain text with subscripts: `H_2O`, `CO_2`.
+- For chemistry, the default renderer does **not** support `\ce{}` (mhchem). Use `\mathrm{H_2O}`, `\mathrm{CO_2}`, `\mathrm{Fe^{2+}}`, and `\rightarrow` / `\rightleftharpoons` for equations; or write the equation as plain text with subscripts if the formula is long.
 - For vectors, preserve the source's arrow/bold convention; if unclear, note it.
+- Keep the LaTeX source in `question.json`; the card builder renders it to formula images for Markdown and native OMML equations for DOCX. Do not pre-render or delete the source.
 
 Common OCR confusions to check:
 

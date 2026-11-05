@@ -48,10 +48,11 @@ The `before` image should show the actual problem (handwriting, perspective, etc
 ## Testing
 
 ```bash
+pip install -r requirements-formulas.txt
 python scripts/validate_package.py examples/incline-static/question.json \
   --root examples/incline-static
 python scripts/build_card.py examples/incline-static/question.json \
-  --out /tmp/card.md --docx /tmp/card.docx
+  --out /tmp/card.md --docx /tmp/card.docx --formula-mode both
 python scripts/build_index.py examples --out /tmp/index.md
 ```
 

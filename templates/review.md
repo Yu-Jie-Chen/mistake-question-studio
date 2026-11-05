@@ -21,10 +21,19 @@
 - Kind: `clean-crop` / `masked` / `trace-redraw` / `rebuild`
 - Before: `figures/fig-1.before.png`
 - After: `figures/fig-1.png`
+- Embedded in `card.md`: yes / no
+- Embedded in `card.docx`: yes / no
 - Removed marks:
 - Preserved labels:
 - Topology check:
 - Confidence:
+
+## Formulas
+- Markdown mode: `images` / `latex` / `both`
+- `card.md` formula images resolve:
+- `card.docx` native equations or images:
+- Raw `$...$` left in DOCX: none / list
+- `card.latex.md` present:
 
 ## Answer
 - Final:

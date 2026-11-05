@@ -175,14 +175,28 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
    python scripts/validate_package.py text/question.json --root .
    ```
 
-3. Render:
+3. Install the formula dependencies once:
 
    ```bash
-   python scripts/build_card.py text/question.json --out card.md --docx card.docx
+   pip install -r requirements-formulas.txt
    ```
 
-4. Open the Markdown and DOCX and compare with the source.
-5. Record the comparison in `review.md`.
+4. Render:
+
+   ```bash
+   python scripts/build_card.py text/question.json \
+     --out card.md --question-out text/question.md --docx card.docx \
+     --formula-mode both
+   ```
+
+5. Check the output package:
+   - `card.md` references every figure and every formula image;
+   - `card.docx` contains every figure and native equations (not raw `$...$`);
+   - `card.latex.md` is the raw-LaTeX sidecar;
+   - `formulas/` contains the formula images used by Markdown.
+
+6. Open the Markdown and DOCX and compare with the source.
+7. Record the comparison in `review.md`.
 
 The card should be usable by a student without the original page. If the reader needs the original to understand the question, extraction is incomplete.
 
@@ -197,6 +211,8 @@ Minimum review record:
 - [ ] Text matches source
 - [ ] All subquestions/options present
 - [ ] Figure topology checked
+- [ ] Figure embedded in card.md and card.docx
+- [ ] Formulas rendered in card.md and card.docx
 - [ ] Answer independently verified
 - [ ] Units and signs checked
 - [ ] Student data removed

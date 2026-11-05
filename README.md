@@ -66,11 +66,19 @@
 
 重绘时先写“图形规格”（对象、连接、方向、虚实线、标签、约束），再画图；**不添加解题用的力箭头、辅助线或坐标**。
 
-### 4. 答案必须独立求解
+### 4. 配图必须进入成品
+
+题干依赖图，图就必须出现在 `card.md` 和 `card.docx` 里，而不是只躺在 `figures/` 文件夹里。构建脚本会自动发现 `figures/fig-*`，并嵌入 Markdown 与 Word；缺图会给出警告，`--strict` 下直接失败。
+
+### 5. 公式不是源码
+
+Word 中显示原生公式（OMML），Markdown 中显示渲染后的公式图片；同时保留 `card.latex.md` 作为可编辑的 LaTeX 源。**成品里不应再出现裸的 `$...$`。**
+
+### 6. 答案必须独立求解
 
 不抄学生答案，不把答案键当唯一依据。解析要能让学生看懂“关键判断点”，而不是只给算式。
 
-### 5. 有审核门槛
+### 7. 有审核门槛
 
 每张卡都有 `review.md` 和质量门。未通过审核的卡只能是 `draft`，不能进入公共题库。
 
@@ -87,7 +95,9 @@
 - [示例题目与卡片](examples/incline-static/)
 - [示例 question.json](examples/incline-static/question.json)
 - [示例纯题干 question.md](examples/incline-static/question.md)
-- [示例 card.md](examples/incline-static/card.md)
+- [示例 card.md](examples/incline-static/card.md)（公式图片 + 配图）
+- [示例 card.docx](examples/incline-static/card.docx)（Word 原生公式 + 嵌入配图）
+- [示例 card.latex.md](examples/incline-static/card.latex.md)（LaTeX 源）
 - [示例图规格](examples/incline-static/figures/fig-1.spec.json)
 
 > 示例是仓库自编的合成题，不来自任何教材或试卷。
@@ -142,9 +152,10 @@ python scripts/clean_figure.py raw.png figures/fig-1.png \
 # 3) 有文字层的 PDF 提取文本
 python scripts/extract_pdf.py input.pdf text --pages 1-3
 
-# 4) 生成卡片（question.md 可选）
+# 4) 生成卡片（question.md 可选；公式转图片 + Word 原生公式）
 python scripts/build_card.py text/question.json \
-  --out card.md --question-out text/question.md --docx card.docx
+  --out card.md --question-out text/question.md --docx card.docx \
+  --formula-mode both
 
 # 5) 校验
 python scripts/validate_package.py text/question.json --root .
@@ -160,16 +171,23 @@ pip install -r requirements.txt
 # 或者：pip install pillow numpy
 ```
 
-可选依赖：
+PDF / OCR 可选依赖：
 
 ```bash
 pip install -r requirements-optional.txt
-# 或者按需安装：pymupdf pypdf python-docx pytesseract
+# 或者按需安装：pymupdf pypdf pytesseract
+```
+
+公式与 Word 导出依赖：
+
+```bash
+pip install -r requirements-formulas.txt
+# python-docx + latex2mathml + mathml2omml + matplotlib
 ```
 
 `pytesseract` 还需要系统安装 Tesseract，并准备 `chi_sim`、`eng` 语言包。
 
-> DOCX 导出会保留公式的 LaTeX 文本，不会自动转成 Word 原生公式。需要排版级公式时，可用 Pandoc 或 Word 公式编辑器做二次处理；Markdown 卡片中的 `$...$` 可直接被支持数学的渲染器识别。
+> 公式处理：`card.docx` 使用 Word 原生公式（OMML），`card.md` 使用 `formulas/eq-*.png` 公式图片；`card.latex.md` 保留 LaTeX 源。成品中不应再出现裸的 `$...$`。
 
 ---
 
@@ -217,14 +235,17 @@ flowchart TD
 work/<id>/
 ├── source/                 # 原始文件（不修改）
 ├── text/
-│   ├── question.md         # 干净题干
+│   ├── question.md         # 干净题干（公式图片）
+│   ├── question.latex.md   # 纯题干 LaTeX 源
 │   └── question.json       # 唯一事实来源
 ├── figures/
 │   ├── fig-1.before.png    # 原图裁剪，便于追溯
 │   ├── fig-1.png           # 清洁/重绘后的图
 │   └── fig-1.spec.json     # 重绘时的图形规格
-├── card.md
-├── card.docx
+├── formulas/               # card.md 使用的公式图片
+├── card.md                 # 成品卡（公式图片）
+├── card.latex.md           # 成品卡 LaTeX 源
+├── card.docx               # Word 原生公式 + 嵌入配图
 ├── manifest.json
 └── review.md
 ```
@@ -246,16 +267,17 @@ work/<id>/
 
 ## 质量门
 
-一张卡要经过 8 道门：
+一张卡要经过以下质量门：
 
 1. 来源与授权
 2. 文本保真
-3. 配图拓扑
-4. 答案独立验证
-5. 解析可教学
-6. 错因诊断具体
-7. Markdown / DOCX / JSON 一致
-8. 隐私与版权
+3. 配图拓扑与嵌入
+4. 公式渲染
+5. 答案独立验证
+6. 解析可教学
+7. 错因诊断具体
+8. Markdown / DOCX / JSON 一致
+9. 隐私与版权
 
 完整清单见 [`references/quality-gates.md`](references/quality-gates.md)。
 

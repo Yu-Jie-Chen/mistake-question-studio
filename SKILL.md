@@ -10,7 +10,7 @@ description: >
   错题本, 错题卡, 提取题目, 题目去痕, 重绘配图, 从截图/PDF 整理题目,
   生成答案与解析.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   author: "Yujie Chen"
   license: "MIT"
   repository: "https://github.com/Yu-Jie-Chen/mistake-question-studio"
@@ -36,8 +36,10 @@ work/<id>/
 │   ├── fig-1.before.png    # original crop, for audit
 │   ├── fig-1.png           # cleaned or redrawn figure
 │   └── fig-1.spec.json     # only when redrawn
-├── card.md                 # teacher/student-facing card
-├── card.docx               # optional
+├── formulas/               # rendered formula images for Markdown
+├── card.md                 # teacher/student-facing card (formula images)
+├── card.latex.md           # raw-LaTeX source sidecar
+├── card.docx               # native Word equations + embedded figures
 ├── manifest.json           # files, page numbers, tools, confidence
 └── review.md               # checks, uncertainties, teacher sign-off
 ```
@@ -52,6 +54,8 @@ work/<id>/
 6. **Teacher confirmation before publishing.** A card can be generated automatically, but it enters a shared question bank only after a human checks the `review.md` gates.
 7. **Privacy and copyright.** Remove names, school names, student IDs, and scores. Do not publish third-party questions, scans, or answer keys without permission.
 8. **One source of truth.** `text/question.json` is authoritative; `card.md` and `card.docx` are renderings. If they disagree, fix the JSON and rebuild.
+9. **Figures are embedded, not merely stored.** If the stem depends on a figure, both `card.md` and `card.docx` must contain it. A figure that exists only in `figures/` is a failed build.
+10. **Formulas are rendered, not left as source.** DOCX must use native Word equations or images; Markdown must use a math renderer or rendered formula images. Raw `$...$` in DOCX is a build failure.
 
 ## Choose a route
 
@@ -85,7 +89,8 @@ Every finished card must contain:
 
 - a complete stem and every subquestion/option;
 - correct units and all data actually stated;
-- at least one figure if the original depends on a figure;
+- at least one figure if the original depends on a figure, embedded in **both** `card.md` and `card.docx`;
+- formulas rendered as formula images (Markdown) and native Word equations or images (DOCX), never raw `$...$` in the finished DOCX;
 - the final answer, with confidence level;
 - a step-by-step analysis that a student can follow;
 - knowledge points, common pitfalls, and one error diagnosis;
@@ -99,7 +104,8 @@ The exact fields are defined in [`references/output-schema.md`](references/outpu
 |---|---|
 | Source | Is the original preserved and traceable? |
 | Text | Does the extracted text match the source, including notation and blanks? |
-| Figure | Is the topology correct, and are solution marks gone? |
+| Figure | Is the topology correct, are solution marks gone, and is the figure embedded in both outputs? |
+| Formula | Are formulas rendered as Word equations/images, not raw `$...$`? |
 | Answer | Is the answer independently verified, with units and signs? |
 | Diagnosis | Is the error classification specific and actionable? |
 | Export | Do Markdown, DOCX, and JSON agree? |
@@ -146,8 +152,10 @@ python scripts/clean_figure.py raw.png figures/fig-1.png \
 python scripts/extract_pdf.py input.pdf text --pages 1-3
 
 # 4. Build the card from question.json
+pip install -r requirements-formulas.txt
 python scripts/build_card.py text/question.json \
-  --out card.md --question-out text/question.md --docx card.docx
+  --out card.md --question-out text/question.md --docx card.docx \
+  --formula-mode both
 
 # 5. Validate references, required fields, and placeholders
 python scripts/validate_package.py text/question.json --root .
@@ -156,7 +164,7 @@ python scripts/validate_package.py text/question.json --root .
 python scripts/build_index.py work --out index.md
 ```
 
-Core dependency: `pillow` and `numpy`. Optional: `pymupdf`/`pypdf`/`pdf2image` for PDFs, `pytesseract` for OCR, `python-docx` for DOCX.
+Core dependency: `pillow` and `numpy`. Formula/Word output: `requirements-formulas.txt` (`python-docx`, `latex2mathml`, `mathml2omml`, `matplotlib`). PDF/OCR: `pymupdf`/`pypdf`/`pdf2image`, `pytesseract`.
 
 ## First-run checklist
 
@@ -164,6 +172,7 @@ Core dependency: `pillow` and `numpy`. Optional: `pymupdf`/`pypdf`/`pdf2image` f
 - [ ] Read the subject adapter **before** solving.
 - [ ] Read the figure rules **before** touching the figure.
 - [ ] Read the output schema **before** writing `question.json`.
+- [ ] Install `requirements-formulas.txt` if the card contains formulas.
 - [ ] Run the quality gates **before** calling the card finished.
 - [ ] Record every uncertainty in `review.md`.
 

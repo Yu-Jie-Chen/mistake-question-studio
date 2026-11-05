@@ -21,10 +21,19 @@
 - Kind: `trace-redraw`
 - Before: `figures/fig-1.before.png`
 - After: `figures/fig-1.png`
+- Embedded in `card.md`: yes
+- Embedded in `card.docx`: yes
 - Removed marks: none (the demo was drawn clean)
 - Preserved labels: `m`, `37°`
 - Topology check: block on incline; angle from horizontal; no force arrows.
 - Confidence: high
+
+## Formulas
+- Markdown mode: `both` (formula images + `card.latex.md`)
+- `card.md` formula images resolve: yes (`formulas/eq-*.png`)
+- `card.docx` native equations or images: native OMML
+- Raw `$...$` left in DOCX: none
+- `card.latex.md` present: yes
 
 ## Answer
 - Final: 6 N, up the incline.
@@ -43,6 +52,8 @@
 - [x] `card.md` renders
 - [x] `card.docx` opens
 - [x] Figure paths resolve
+- [x] Figure embedded in both outputs
+- [x] Formulas rendered in both outputs
 - [x] `review.status` correct (`reviewed`)
 
 ## Privacy and rights
