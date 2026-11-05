@@ -288,9 +288,9 @@ work/<id>/
 
 ---
 
-## 发布到 GitHub
+## 部署到自己的 GitHub
 
-先在 GitHub 上新建一个**空仓库** `Yu-Jie-Chen/mistake-question-studio`（不要勾选自动生成 README、LICENSE 或 .gitignore），然后在本目录执行：
+本项目已发布在 https://github.com/Yu-Jie-Chen/mistake-question-studio 。如果你要 fork、迁移或改成自己的仓库，先在 GitHub 上新建一个**空仓库**（不要勾选自动生成 README、LICENSE 或 .gitignore），然后在本目录执行：
 
 ```bash
 # 第一次使用 Git 时设置身份（邮箱换成你的 GitHub 邮箱或 noreply 地址）
