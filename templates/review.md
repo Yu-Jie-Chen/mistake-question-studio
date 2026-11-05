@@ -22,7 +22,7 @@
 - Before: `figures/fig-1.before.png`
 - After: `figures/fig-1.png`
 - Embedded in `card.md`: yes / no
-- Embedded in `card.docx`: yes / no
+- Word file requested: no (default) / yes — if yes, embedded in `card.docx`: yes / no
 - Removed marks:
 - Preserved labels:
 - Topology check:
@@ -31,8 +31,7 @@
 ## Formulas
 - Markdown mode: `images` / `latex` / `both`
 - `card.md` formula images resolve:
-- `card.docx` native equations or images:
-- Raw `$...$` left in DOCX: none / list
+- Word file requested: no (default) / yes — if yes: native equations or images, no raw `$...$`
 - `card.latex.md` present:
 
 ## Answer
@@ -50,7 +49,6 @@
 ## Build
 - [ ] `question.json` valid
 - [ ] `card.md` renders
-- [ ] `card.docx` opens
 - [ ] Figure paths resolve
 - [ ] `review.status` correct
 

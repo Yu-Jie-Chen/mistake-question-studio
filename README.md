@@ -34,7 +34,7 @@
       ↓
 独立求解 + 解析 + 错因诊断
       ↓
-错题卡（Markdown / DOCX）
+错题卡（Markdown）
       ↓
 质量检查 + 教师审核
 ```
@@ -68,11 +68,13 @@
 
 ### 4. 配图必须进入成品
 
-题干依赖图，图就必须出现在 `card.md` 和 `card.docx` 里，而不是只躺在 `figures/` 文件夹里。构建脚本会自动发现 `figures/fig-*`，并嵌入 Markdown 与 Word；缺图会给出警告，`--strict` 下直接失败。
+题干依赖图，图就必须出现在 `card.md` 里，而不是只躺在 `figures/` 文件夹里。构建脚本会自动发现 `figures/fig-*` 并嵌入 Markdown；缺图会给出警告，`--strict` 下直接失败。
+
+> **默认只交付 Markdown。** 只有用户明确要 Word 版本时才生成 `card.docx`，否则整条 DOCX 流水线（python-docx / OMML / LibreOffice 渲染）都不启动。
 
 ### 5. 公式不是源码
 
-Word 中显示原生公式（OMML），Markdown 中显示渲染后的公式图片；同时保留 `card.latex.md` 作为可编辑的 LaTeX 源。**成品里不应再出现裸的 `$...$`。**
+Markdown 里显示渲染后的公式图片（或交给支持 LaTeX 的阅读器渲染），同时保留 `card.latex.md` 作为可编辑的 LaTeX 源。**成品里不应再出现裸的 `$...$`。**（Word 原生公式只在明确要求 Word 时才生成。）
 
 ### 6. 答案必须独立求解
 
@@ -96,7 +98,7 @@ Word 中显示原生公式（OMML），Markdown 中显示渲染后的公式图�
 - [示例 question.json](examples/incline-static/question.json)
 - [示例纯题干 question.md](examples/incline-static/question.md)
 - [示例 card.md](examples/incline-static/card.md)（公式图片 + 配图）
-- [示例 card.docx](examples/incline-static/card.docx)（Word 原生公式 + 嵌入配图）
+- [示例 card.docx](examples/incline-static/card.docx)（可选：仅在明确要求 Word 时才生成的版本）
 - [示例 card.latex.md](examples/incline-static/card.latex.md)（LaTeX 源）
 - [示例图规格](examples/incline-static/figures/fig-1.spec.json)
 
@@ -152,9 +154,9 @@ python scripts/clean_figure.py raw.png figures/fig-1.png \
 # 3) 有文字层的 PDF 提取文本
 python scripts/extract_pdf.py input.pdf text --pages 1-3
 
-# 4) 生成卡片（question.md 可选；公式转图片 + Word 原生公式）
+# 4) 生成卡片（只出 Markdown；要 Word 才加 --docx card.docx）
 python scripts/build_card.py text/question.json \
-  --out card.md --question-out text/question.md --docx card.docx \
+  --out card.md --question-out text/question.md \
   --formula-mode both
 
 # 5) 校验
@@ -178,16 +180,16 @@ pip install -r requirements-optional.txt
 # 或者按需安装：pymupdf pypdf pytesseract
 ```
 
-公式与 Word 导出依赖：
+公式图片依赖（只在需要 `formulas/eq-*.png` 时安装）：
 
 ```bash
 pip install -r requirements-formulas.txt
-# python-docx + latex2mathml + mathml2omml + matplotlib
+# matplotlib；python-docx + latex2mathml + mathml2omml 只在导出 Word 时需要
 ```
 
 `pytesseract` 还需要系统安装 Tesseract，并准备 `chi_sim`、`eng` 语言包。
 
-> 公式处理：`card.docx` 使用 Word 原生公式（OMML），`card.md` 使用 `formulas/eq-*.png` 公式图片；`card.latex.md` 保留 LaTeX 源。成品中不应再出现裸的 `$...$`。
+> 公式处理：`card.md` 使用 `formulas/eq-*.png` 公式图片（或由阅读器渲染 LaTeX）；`card.latex.md` 保留 LaTeX 源。成品中不应再出现裸的 `$...$`。`card.docx`（Word 原生公式）只在用户明确要求时生成。
 
 ---
 
@@ -204,7 +206,7 @@ flowchart TD
     F --> G
     G --> H[解析 + 错因诊断]
     H --> I[生成 question.json]
-    I --> J[渲染 card.md / card.docx]
+    I --> J[渲染 card.md（Word 可选）]
     J --> K[质量门 + 教师审核]
     K --> L[进入错题题库]
 ```
@@ -242,10 +244,10 @@ work/<id>/
 │   ├── fig-1.before.png    # 原图裁剪，便于追溯
 │   ├── fig-1.png           # 清洁/重绘后的图
 │   └── fig-1.spec.json     # 重绘时的图形规格
-├── formulas/               # card.md 使用的公式图片
-├── card.md                 # 成品卡（公式图片）
+├── formulas/               # card.md 使用的公式图片（可选）
+├── card.md                 # 成品卡 —— 默认交付物
 ├── card.latex.md           # 成品卡 LaTeX 源
-├── card.docx               # Word 原生公式 + 嵌入配图
+├── card.docx               # 可选：仅在明确要求 Word 时生成
 ├── manifest.json
 └── review.md
 ```
@@ -276,7 +278,7 @@ work/<id>/
 5. 答案独立验证
 6. 解析可教学
 7. 错因诊断具体
-8. Markdown / DOCX / JSON 一致
+8. Markdown 与 JSON 一致（Word 仅在明确要求时另查）
 9. 隐私与版权
 
 完整清单见 [`references/quality-gates.md`](references/quality-gates.md)。
@@ -362,7 +364,7 @@ MIT。见 [`LICENSE`](LICENSE)。
 
 ## English summary
 
-**Mistake Question Studio** is a subject-agnostic skill for turning wrong-question photos, screenshots, and PDFs into clean study cards. It extracts stems and subquestions, separates printed content from handwriting, cleans or redraws figures without solution marks, solves and analyzes the problem, diagnoses the error, and exports Markdown/DOCX.
+**Mistake Question Studio** is a subject-agnostic skill for turning wrong-question photos, screenshots, and PDFs into clean study cards. It extracts stems and subquestions, separates printed content from handwriting, cleans or redraws figures without solution marks, solves and analyzes the problem, diagnoses the error, and exports a Markdown card (Word only on explicit request).
 
 It is designed for teachers across physics, chemistry, mathematics, English, biology, geography, history, and politics. The workflow prioritizes source fidelity, traceable figure reconstruction, independent answer verification, and a human review gate.
 

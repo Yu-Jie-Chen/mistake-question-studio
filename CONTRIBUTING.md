@@ -34,7 +34,7 @@ examples/<name>/
 ├── README.md
 ├── question.json
 ├── card.md
-├── card.docx
+├── card.docx            # optional — only for a deliberately tested Word export
 ├── figures/
 │   ├── fig-1.before.png
 │   ├── fig-1.png
@@ -52,7 +52,8 @@ pip install -r requirements-formulas.txt
 python scripts/validate_package.py examples/incline-static/question.json \
   --root examples/incline-static
 python scripts/build_card.py examples/incline-static/question.json \
-  --out /tmp/card.md --docx /tmp/card.docx --formula-mode both
+  --out /tmp/card.md --formula-mode both
+# add --docx /tmp/card.docx only when you deliberately test the opt-in Word export
 python scripts/build_index.py examples --out /tmp/index.md
 ```
 

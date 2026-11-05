@@ -7,7 +7,7 @@ This is a **synthetic** example created for the repository. It demonstrates the 
 - A clean, solution-mark-free figure (`figures/fig-1.png`).
 - A redraw spec (`figures/fig-1.spec.json`) that records the constraints.
 - A complete `question.json` with answer, analysis, diagnosis, knowledge points, and review.
-- A rendered `card.md` (formula images) and `card.docx` (native Word equations).
+- A rendered `card.md` (formula images) — the default deliverable — plus an optional `card.docx` sample (native Word equations).
 - Raw-LaTeX sidecars `question.latex.md` and `card.latex.md`.
 - A clean, question-only `question.md`.
 
@@ -39,8 +39,9 @@ incline-static/
 pip install -r ../../requirements-formulas.txt
 python ../../scripts/validate_package.py question.json --root .
 python ../../scripts/build_card.py question.json \
-  --out card.md --question-out question.md --docx card.docx \
+  --out card.md --question-out question.md \
   --formula-mode both
+# --docx card.docx is opt-in, only for testing the Word export
 ```
 
 ## Note

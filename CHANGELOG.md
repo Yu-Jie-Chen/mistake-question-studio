@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 — 2026-11-05
+
+- **Markdown is now the only default deliverable.** `card.md` is what the skill hands over;
+  the DOCX pipeline is opt-in and runs only when the user explicitly asks for Word.
+- Skill, references, template, README and CLI updated to drop the "md **and** docx" contract:
+  - quality gates, output schema, review template and the delivery checklist no longer require
+    `card.docx`;
+  - `build_card.py` keeps `--docx` but documents it as an explicit opt-in;
+  - `requirements-formulas.txt` is only needed when the card uses `formulas/eq-*.png`.
+- Rationale: building Word cost time and tokens (python-docx, OMML, LibreOffice rendering) that
+  most sessions never use. Skipping it removes an entire stage from the default flow.
+
 ## 0.2.0 — 2026-11-05
 
 - Figures are now discovered from `figures/` and embedded in both Markdown and DOCX.

@@ -12,7 +12,7 @@ Collect or infer:
 | Grade / level | Controls vocabulary, allowed methods, and difficulty |
 | Source type | Screenshot, photo, scanned page, PDF, DOCX, or already-cropped image |
 | Source rights | Local use vs. public sharing |
-| Output | Markdown card, DOCX, figure only, or text only |
+| Output | Markdown card (default), figure only, or text only; ask before producing a Word file |
 | Student answer | Preserve for diagnosis, but keep it out of the clean question |
 | Answer key | Use only as a cross-check, never as the sole source |
 
@@ -175,27 +175,30 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
    python scripts/validate_package.py text/question.json --root .
    ```
 
-3. Install the formula dependencies once:
+3. Install the formula dependencies **only if** `card.md` needs `formulas/eq-*.png`:
 
    ```bash
    pip install -r requirements-formulas.txt
    ```
 
-4. Render:
+4. Render the Markdown card (no DOCX in the default flow):
 
    ```bash
    python scripts/build_card.py text/question.json \
-     --out card.md --question-out text/question.md --docx card.docx \
+     --out card.md --question-out text/question.md \
      --formula-mode both
    ```
 
+   Add `--docx card.docx` **only** when the user explicitly asks for a Word file.
+
 5. Check the output package:
    - `card.md` references every figure and every formula image;
-   - `card.docx` contains every figure and native equations (not raw `$...$`);
    - `card.latex.md` is the raw-LaTeX sidecar;
-   - `formulas/` contains the formula images used by Markdown.
+   - `formulas/` contains the formula images used by Markdown (if any).
+   - `card.docx` is out of scope unless the user asked for Word; then check that it
+     contains every figure and native equations (not raw `$...$`).
 
-6. Open the Markdown and DOCX and compare with the source.
+6. Open the Markdown and compare with the source.
 7. Record the comparison in `review.md`.
 
 The card should be usable by a student without the original page. If the reader needs the original to understand the question, extraction is incomplete.
@@ -211,8 +214,8 @@ Minimum review record:
 - [ ] Text matches source
 - [ ] All subquestions/options present
 - [ ] Figure topology checked
-- [ ] Figure embedded in card.md and card.docx
-- [ ] Formulas rendered in card.md and card.docx
+- [ ] Figure embedded in card.md
+- [ ] Formulas readable in card.md (rendered images or math renderer)
 - [ ] Answer independently verified
 - [ ] Units and signs checked
 - [ ] Student data removed

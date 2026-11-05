@@ -9,7 +9,7 @@ A synthetic high-school physics problem used to demonstrate the full output:
 - `question.latex.md` — raw-LaTeX question source;
 - `card.md` — teacher/student-facing card with formula images and embedded figure;
 - `card.latex.md` — raw-LaTeX card source;
-- `card.docx` — editable Word version with native equations and embedded figure;
+- `card.docx` — optional editable Word version with native equations and embedded figure (kept as a sample; the default deliverable is `card.md`);
 - `review.md` — quality-gate record and sign-off;
 - `figures/fig-1.png` — clean figure with no solution marks;
 - `figures/fig-1.before.png` — original crop (for the demo, identical to the clean version because the demo was drawn clean);
@@ -49,6 +49,8 @@ Run:
 ```bash
 python ../scripts/validate_package.py question.json --root .
 python ../scripts/build_card.py question.json \
-  --out card.md --question-out question.md --docx card.docx \
+  --out card.md --question-out question.md \
   --formula-mode both
 ```
+
+Add `--docx card.docx` only if the example deliberately demonstrates the opt-in Word export.

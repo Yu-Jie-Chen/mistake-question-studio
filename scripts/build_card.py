@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Render question.json into a Markdown card and optional DOCX.
+"""Render question.json into a Markdown card (DOCX only on explicit request).
 
 The builder enforces two things that are easy to lose in a hand-written card:
 
-1. Every figure in ``figures/`` is embedded in both Markdown and DOCX.
-2. LaTeX math is rendered: formula images in Markdown, native Word equations
-   (OMML) in DOCX, with image fallback.
+1. Every figure in ``figures/`` is embedded in the Markdown card
+   (and in DOCX as well when ``--docx`` is passed).
+2. LaTeX math is rendered: formula images in the Markdown card, optional
+   native Word equations (OMML) in DOCX, with image fallback.
+
+Markdown is the default deliverable. Do not pass ``--docx`` unless the user
+explicitly asked for a Word file — that keeps the whole python-docx / OMML
+pipeline out of the normal flow.
 
 Examples:
-    python build_card.py text/question.json --out card.md --docx card.docx
+    python build_card.py text/question.json --out card.md
     python build_card.py text/question.json --out card.md --formula-mode both
-    python build_card.py text/question.json --out card.md --formula-mode latex
+    python build_card.py text/question.json --out card.md --docx card.docx  # only on request
 """
 from __future__ import annotations
 
@@ -696,11 +701,12 @@ def build_docx(q: dict, root: Path, out: Path,
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Build a Markdown/DOCX card from question.json.")
+    ap = argparse.ArgumentParser(description="Build a Markdown card from question.json (DOCX opt-in).")
     ap.add_argument("json", type=Path)
     ap.add_argument("--out", type=Path, default=Path("card.md"))
     ap.add_argument("--question-out", type=Path, help="optional clean question-only Markdown")
-    ap.add_argument("--docx", type=Path)
+    ap.add_argument("--docx", type=Path,
+                    help="opt-in Word export; pass only when the user explicitly asks for Word")
     ap.add_argument("--root", type=Path, help="root for relative figure paths (default: JSON parent)")
     ap.add_argument("--formula-mode", choices=("both", "images", "latex"), default="both",
                     help="both: card.md images + card.latex.md; images: only rendered images; latex: raw source")

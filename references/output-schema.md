@@ -1,6 +1,6 @@
 # Output schema
 
-`text/question.json` is the single source of truth. `card.md` and `card.docx` are generated from it.
+`text/question.json` is the single source of truth. `card.md` is generated from it. (`card.docx` is opt-in: only when the user explicitly asks for a Word file.)
 
 The validator in [`../scripts/validate_package.py`](../scripts/validate_package.py) checks the required fields and referenced files.
 
@@ -131,7 +131,7 @@ Use Markdown + LaTeX. Keep the source language.
 | `removed_marks` | no | list of hand-drawn marks removed |
 | `labels_preserved` | no | exact labels retained |
 
-Every figure must be embedded in both `card.md` and `card.docx`; a figure that exists only in `figures/` is a failed build. For DOCX embedding, use PNG/JPG/JPEG/WebP. Keep SVG alongside as an editable source, not as the only figure.
+Every figure must be embedded in `card.md`; a figure that exists only in `figures/` is a failed build. Use PNG/JPG/JPEG/WebP for embedding. Keep SVG alongside as an editable source, not as the only figure.
 
 ### `answer` (required)
 
@@ -210,7 +210,7 @@ Allowed `status`: `draft`, `reviewed`, `published`.
 
 ## Markdown conventions
 
-- Inline math: `$...$` in `question.json`; the builder renders it to `formulas/eq-*.png` for `card.md` and to OMML for `card.docx`.
+- Inline math: `$...$` in `question.json`; the builder either keeps it for a LaTeX/KaTeX-capable viewer or renders it to `formulas/eq-*.png` for `card.md` (`card.docx` only if a Word file is requested).
 - Display math: `$$...$$` on its own lines in the source; rendered as a centered formula block in the outputs.
 - Blanks: `____` (four underscores) or the source's line.
 - Options: one per line, `A. ...`.

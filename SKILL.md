@@ -36,13 +36,17 @@ work/<id>/
 │   ├── fig-1.before.png    # original crop, for audit
 │   ├── fig-1.png           # cleaned or redrawn figure
 │   └── fig-1.spec.json     # only when redrawn
-├── formulas/               # rendered formula images for Markdown
-├── card.md                 # teacher/student-facing card (formula images)
-├── card.latex.md           # raw-LaTeX source sidecar
-├── card.docx               # native Word equations + embedded figures
+├── formulas/               # optional formula images for Markdown
+├── card.md                 # teacher/student-facing card — the deliverable
+├── card.latex.md           # raw-LaTeX source sidecar (optional)
 ├── manifest.json           # files, page numbers, tools, confidence
 └── review.md               # checks, uncertainties, teacher sign-off
 ```
+
+> **Delivery default: Markdown only.** `card.md` is what you hand over. Do **not** build
+> `card.docx` unless the user explicitly asks for a Word file — in the default flow the whole
+> DOCX pipeline (python-docx, OMML, LibreOffice rendering) is skipped, together with the
+> `card.docx` items in the quality gates.
 
 ## Non-negotiable rules
 
@@ -53,9 +57,9 @@ work/<id>/
 5. **Solve independently.** The answer must be derived after extraction, not copied from the student's marks or from an answer key alone. Cross-check units, signs, and edge cases.
 6. **Teacher confirmation before publishing.** A card can be generated automatically, but it enters a shared question bank only after a human checks the `review.md` gates.
 7. **Privacy and copyright.** Remove names, school names, student IDs, and scores. Do not publish third-party questions, scans, or answer keys without permission.
-8. **One source of truth.** `text/question.json` is authoritative; `card.md` and `card.docx` are renderings. If they disagree, fix the JSON and rebuild.
-9. **Figures are embedded, not merely stored.** If the stem depends on a figure, both `card.md` and `card.docx` must contain it. A figure that exists only in `figures/` is a failed build.
-10. **Formulas are rendered, not left as source.** DOCX must use native Word equations or images; Markdown must use a math renderer or rendered formula images. Raw `$...$` in DOCX is a build failure.
+8. **One source of truth.** `text/question.json` is authoritative; `card.md` is its rendering. If they disagree, fix the JSON and rebuild.
+9. **Figures are embedded, not merely stored.** If the stem depends on a figure, `card.md` must contain it. A figure that exists only in `figures/` is a failed build.
+10. **Formulas are rendered, not left as raw source.** In `card.md`, math must either be rendered by the target viewer (LaTeX/KaTeX-capable viewer) or appear as `formulas/eq-*.png` images; a card that only works with a raw `$...$` dump is not finished. (If a Word file is explicitly requested, it must use native equations or formula images, never raw `$...$`.)
 
 ## Choose a route
 
@@ -80,7 +84,7 @@ If the request is ambiguous, default to **Standard** for PDFs and **Quick** for 
 4. **Handle figures** — classify, crop/clean/redraw, and compare before/after.
 5. **Solve and analyze** — solve independently; write steps, key points, pitfalls, and a compact diagnosis.
 6. **Diagnose** — separate "what the student wrote" from "why it is wrong"; classify the error.
-7. **Build** — render `card.md` and optional `card.docx` from `question.json`.
+7. **Build** — render `card.md` from `question.json`; no DOCX unless explicitly requested.
 8. **Validate and review** — run the quality gates; record uncertainties and teacher sign-off.
 
 ## Minimum output contract
@@ -89,8 +93,8 @@ Every finished card must contain:
 
 - a complete stem and every subquestion/option;
 - correct units and all data actually stated;
-- at least one figure if the original depends on a figure, embedded in **both** `card.md` and `card.docx`;
-- formulas rendered as formula images (Markdown) and native Word equations or images (DOCX), never raw `$...$` in the finished DOCX;
+- at least one figure if the original depends on a figure, embedded in `card.md`;
+- formulas readable in `card.md` — rendered images or a math-rendering viewer, never a raw `$...$` dump;
 - the final answer, with confidence level;
 - a step-by-step analysis that a student can follow;
 - knowledge points, common pitfalls, and one error diagnosis;
@@ -104,11 +108,11 @@ The exact fields are defined in [`references/output-schema.md`](references/outpu
 |---|---|
 | Source | Is the original preserved and traceable? |
 | Text | Does the extracted text match the source, including notation and blanks? |
-| Figure | Is the topology correct, are solution marks gone, and is the figure embedded in both outputs? |
-| Formula | Are formulas rendered as Word equations/images, not raw `$...$`? |
+| Figure | Is the topology correct, are solution marks gone, and is the figure embedded in `card.md`? |
+| Formula | Are formulas readable in `card.md` — rendered images or a math renderer, not raw `$...$`? |
 | Answer | Is the answer independently verified, with units and signs? |
 | Diagnosis | Is the error classification specific and actionable? |
-| Export | Do Markdown, DOCX, and JSON agree? |
+| Export | Do `card.md` and `question.json` agree? |
 | Privacy | Are names, schools, IDs, and scores removed? |
 | Rights | Is publication permitted? |
 
@@ -151,10 +155,10 @@ python scripts/clean_figure.py raw.png figures/fig-1.png \
 # 3. Extract PDF text when a text layer exists
 python scripts/extract_pdf.py input.pdf text --pages 1-3
 
-# 4. Build the card from question.json
-pip install -r requirements-formulas.txt
+# 4. Build the card from question.json (Markdown only — no DOCX)
+pip install -r requirements-formulas.txt   # only if you render formulas/eq-*.png
 python scripts/build_card.py text/question.json \
-  --out card.md --question-out text/question.md --docx card.docx \
+  --out card.md --question-out text/question.md \
   --formula-mode both
 
 # 5. Validate references, required fields, and placeholders
@@ -164,7 +168,7 @@ python scripts/validate_package.py text/question.json --root .
 python scripts/build_index.py work --out index.md
 ```
 
-Core dependency: `pillow` and `numpy`. Formula/Word output: `requirements-formulas.txt` (`python-docx`, `latex2mathml`, `mathml2omml`, `matplotlib`). PDF/OCR: `pymupdf`/`pypdf`/`pdf2image`, `pytesseract`.
+Core dependency: `pillow` and `numpy`. Formula images: `requirements-formulas.txt` (`matplotlib`; `python-docx`/`latex2mathml`/`mathml2omml` only for an explicitly requested Word file). PDF/OCR: `pymupdf`/`pypdf`/`pdf2image`, `pytesseract`.
 
 ## First-run checklist
 
@@ -172,7 +176,7 @@ Core dependency: `pillow` and `numpy`. Formula/Word output: `requirements-formul
 - [ ] Read the subject adapter **before** solving.
 - [ ] Read the figure rules **before** touching the figure.
 - [ ] Read the output schema **before** writing `question.json`.
-- [ ] Install `requirements-formulas.txt` if the card contains formulas.
+- [ ] Install `requirements-formulas.txt` only if `card.md` needs `formulas/eq-*.png`.
 - [ ] Run the quality gates **before** calling the card finished.
 - [ ] Record every uncertainty in `review.md`.
 
