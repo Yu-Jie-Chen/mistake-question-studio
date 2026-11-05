@@ -16,7 +16,7 @@ metadata:
   repository: "https://github.com/Yu-Jie-Chen/mistake-question-studio"
 ---
 
-# 错题工坊 · Mistake Question Studio
+# 错题整理 · Mistake Question Studio
 
 A subject-agnostic workflow that turns one photographed question, one screenshot, or one PDF page into a **clean, teachable, reviewable study card**.
 
