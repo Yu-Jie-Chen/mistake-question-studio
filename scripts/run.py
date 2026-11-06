@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """One entry point for the whole pipeline, so a fresh session never re-explores.
 
     python run.py new    page.png --id 20261105-math-solid-geometry-004 \\
@@ -105,6 +105,14 @@ def status(wd: Path) -> int:
                 notes.append(f"figure missing on disk: {f.get('path')}")
     if notes:
         print("  " + " | ".join(notes))
+
+    # Stop signal: the card is already built and up to date -> deliver it and end the
+    # session instead of re-entering the folder (each extra round re-bills the history).
+    card = wd / "card.md"
+    stale = bool(card.exists() and ok_q and qp.exists()
+                 and card.stat().st_mtime < qp.stat().st_mtime)
+    if card.exists() and not stale:
+        print("STOP: card built — deliver it, do not re-enter")
 
     print("NEXT")
     if not (wd / "text" / "question.json").exists():
