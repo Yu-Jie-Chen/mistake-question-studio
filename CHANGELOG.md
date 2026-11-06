@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 — 2026-11-06
+
+- **`draw_scene.py`: flat figures are now derived, not eyeballed.** A declarative scene
+  (data coordinates + `view`) with the primitives that physics cards actually need:
+  `line`/`polyline`/`arrow`/`arc`/`dot`/`label` (with sub/superscript)/`hatch`/`parabola`.
+  Projectile arcs are integrated from $v_0$ and $g$, so a trajectory is exact; dashing is
+  continuous across vertices (a per-segment dash pattern silently turns a sampled curve
+  into a solid line).
+  Companion to `draw_solid.py`: 3D solids and 2D scenes are both spec-driven now.
+- Worked example: the 双斜面 projectile card (`figures/fig-1.spec.json` in its work folder).
+
 ## 0.4.0 — 2026-11-05
 
 - **Low-loss pipeline: the intake is now one command.** `run.py new` copies the source,

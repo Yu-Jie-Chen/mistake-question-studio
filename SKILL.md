@@ -157,6 +157,11 @@ python scripts/draw_solid.py figures/fig-1.spec.json --out figures/fig-1.png \
   --svg figures/fig-1.svg --before figures/fig-1.before.png \
   --compare figures/compare-fig-1.png
 
+# 0c. Flat scene (incline + projectile arc + angle marks) from data coordinates
+#     parabolas are integrated from v0/g, so the arc is exact, not eyeballed
+python scripts/draw_scene.py figures/fig-1.spec.json --out figures/fig-1.png \
+  --svg figures/fig-1.svg --before figures/fig-1.before.png --compare figures/compare-fig-1.png
+
 # 1. Render PDF pages or normalise images
 python scripts/prepare_scan.py input.pdf work/20260101-physics-001/source --dpi 300
 
