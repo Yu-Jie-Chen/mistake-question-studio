@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.1 — 2026-11-06
+
+- **`run.py finish` is quiet**: the four child reports collapse into one summary line, then
+  `STOP`/`NEXT`. Output that lands in the transcript is re-billed on every later request, so
+  the default report is 3 lines and `--verbose` is opt-in for failures.
+- **`run.py render <workdir>`**: writes the spec (path, or `--spec-json @file`), renders
+  PNG + SVG, and builds the compare sheet in one call. The engine is picked from the spec
+  (`vertices` + `faces` → `draw_solid.py`, otherwise `draw_scene.py`), so a card session
+  does not have to know which renderer to invoke. Inline `--spec-json` is refused with a
+  hint instead of a stack trace: Windows shells strip the double quotes from a native
+  command line, so `@file` is the portable form.
+- Net effect on a card: two fewer round trips (render, figure-engine lookup) and a much
+  shorter build report.
+
 ## 0.5.0 — 2026-11-06
 
 - **`draw_scene.py`: flat figures are now derived, not eyeballed.** A declarative scene

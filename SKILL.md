@@ -149,7 +149,9 @@ The scripts are optional accelerators. Use them when Python 3.10+ is available; 
 python scripts/run.py new page.jpg --id 20260101-math-solid-001 \
   --subject mathematics --grade 高中二年级
 python scripts/run.py status work/20260101-math-solid-001    # where am I, what is stale
-python scripts/run.py finish work/20260101-math-solid-001    # preflight + build + validate
+python scripts/run.py finish work/20260101-math-solid-001    # preflight+build+validate, then STOP/NEXT
+#     finish is quiet on purpose: 3 lines. Every extra line is re-billed on every later
+#     request, so --verbose is opt-in only when something fails.
 
 # 0b. Solid-geometry figure from a 3D model (hidden edges are computed, not guessed)
 #     spec copied from templates/figure-spec-3d.json
@@ -161,6 +163,10 @@ python scripts/draw_solid.py figures/fig-1.spec.json --out figures/fig-1.png \
 #     parabolas are integrated from v0/g, so the arc is exact, not eyeballed
 python scripts/draw_scene.py figures/fig-1.spec.json --out figures/fig-1.png \
   --svg figures/fig-1.svg --before figures/fig-1.before.png --compare figures/compare-fig-1.png
+
+# 0d. Or let run.py pick the engine (3D solid vs flat scene) and build the compare sheet
+python scripts/run.py render work/20260101-physics-001        # spec at figures/fig-1.spec.json
+python scripts/run.py render work/20260101-physics-001 --spec-json @spec.json
 
 # 1. Render PDF pages or normalise images
 python scripts/prepare_scan.py input.pdf work/20260101-physics-001/source --dpi 300
