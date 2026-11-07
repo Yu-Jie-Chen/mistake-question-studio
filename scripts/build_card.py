@@ -90,6 +90,56 @@ def stars(n: int) -> str:
     return "★" * n + "☆" * (5 - n)
 
 
+# Every figure is printed at this fraction of the text column (60% = shrunk by
+# 40%), so a cleaned crop never dwarfs the stem it belongs to.
+FIGURE_WIDTH = 0.6
+
+# "高中三年级" is school admin language; the card header speaks in short form.
+GRADE_SHORT = {
+    "高中一年级": "高一", "高中二年级": "高二", "高中三年级": "高三",
+    "高一年级": "高一", "高二年级": "高二", "高三年级": "高三",
+    "初中一年级": "初一", "初中二年级": "初二", "初中三年级": "初三",
+    "初一年级": "初一", "初二年级": "初二", "初三年级": "初三",
+}
+GRADE_RE = re.compile(r"(高[一二三]|初[一二三])")
+
+
+def grade_short(grade: str) -> str:
+    """高中三年级 -> 高三, 高三上 -> 高三, 初中二年级 -> 初二."""
+    g = str(grade or "").strip()
+    if not g:
+        return ""
+    if g in GRADE_SHORT:
+        return GRADE_SHORT[g]
+    m = GRADE_RE.search(g)
+    return m.group(1) if m else g
+
+
+def student_name(q: dict) -> str:
+    """Optional: a card may be issued to one student instead of a class."""
+    st = q.get("student")
+    if isinstance(st, str):
+        return st.strip()
+    if isinstance(st, dict):
+        return str(st.get("name", "")).strip()
+    return ""
+
+
+def card_title(q: dict) -> str:
+    """物理高三 · 王小明 · 错题卡 — subject+grade first, then the name, then 错题卡."""
+    subject = SUBJECT_LABELS.get(q.get("subject", "other"), q.get("subject", "其他"))
+    parts = [f"{subject}{grade_short(q.get('grade', ''))}"]
+    name = student_name(q)
+    if name:
+        parts.append(name)
+    parts.append("错题卡")
+    return " · ".join(parts)
+
+
+def review_date(q: dict) -> str:
+    return str((q.get("review") or {}).get("date", "") or "").strip()
+
+
 def md_to_text(s: str) -> str:
     s = re.sub(r"!\[[^\]]*\]\([^)]+\)", "[图]", s)
     s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
@@ -362,19 +412,12 @@ def build_question_markdown(q: dict, root: Path, card_dir: Path) -> str:
 
 
 def build_markdown(q: dict, root: Path, card_dir: Path) -> str:
-    subject = SUBJECT_LABELS.get(q.get("subject", "other"), q.get("subject", "其他"))
     lines: list[str] = []
-    lines.append(f"# {subject} · {q.get('grade', '')} · 错题卡")
+    lines.append(f"# {card_title(q)}")
     lines.append("")
-    lines.append(f"> ID：`{q.get('id', '')}`　|　状态：`{q.get('review', {}).get('status', 'draft')}`")
-    src = q.get("source", {})
-    if src:
-        bits = [SOURCE_LABELS.get(src.get("type", ""), src.get("type", "")), src.get("file", "")]
-        if src.get("page"):
-            bits.append(f"第 {src['page']} 页")
-        lines.append(f"> 来源：{'，'.join(b for b in bits if b)}")
-        if src.get("note"):
-            lines.append(f"> 备注：{src['note']}")
+    # The printed card carries its ID and nothing else: 状态/来源/备注 live in
+    # text/question.json and review.md, where they belong.
+    lines.append(f"> ID：`{q.get('id', '')}`")
     lines.append("")
 
     question = q.get("question", {})
@@ -482,19 +525,11 @@ def build_markdown(q: dict, root: Path, card_dir: Path) -> str:
         lines.append(meta["variant_md"].strip())
         lines.append("")
 
-    review = q.get("review", {})
-    lines.append("## 审核")
-    lines.append("")
-    lines.append(f"- 状态：`{review.get('status', 'draft')}`")
-    if review.get("reviewer"):
-        lines.append(f"- 审核人：{review['reviewer']}")
-    if review.get("date"):
-        lines.append(f"- 日期：{review['date']}")
-    uncertainties = review.get("uncertainties", []) or []
-    if uncertainties:
-        lines.append("- 待确认：")
-        for u in uncertainties:
-            lines.append(f"  - {u}")
+    # The card closes on the date it was signed off. The audit trail (审核人,
+    # 状态, 待确认) stays in review.md and in the question bank, not on paper.
+    date = review_date(q)
+    if date:
+        lines.append(date)
     lines.append("")
     return "\n".join(lines).strip() + "\n"
 
@@ -587,16 +622,17 @@ def build_docx(q: dict, root: Path, out: Path,
                strict: bool = False) -> list[str]:
     try:
         from docx import Document
-        from docx.shared import Inches
     except ImportError as exc:
         raise RuntimeError("python-docx is not installed: pip install python-docx") from exc
 
     warnings: list[str] = []
     docx_math = FormulaDocx()
-    subject = SUBJECT_LABELS.get(q.get("subject", "other"), q.get("subject", "其他"))
     doc = Document()
-    doc.add_heading(f"{subject} · {q.get('grade', '')} · 错题卡", level=0)
-    doc.add_paragraph(f"ID：{q.get('id', '')}　状态：{q.get('review', {}).get('status', 'draft')}")
+    doc.add_heading(card_title(q), level=0)
+    doc.add_paragraph(f"ID：{q.get('id', '')}")
+    # Figure width is a fraction of the text column, same 60% as the HTML card.
+    text_width = doc.sections[0].page_width - doc.sections[0].left_margin - doc.sections[0].right_margin
+    figure_width = int(text_width * FIGURE_WIDTH)
 
     question = q.get("question", {})
     doc.add_heading("题目", level=1)
@@ -617,7 +653,7 @@ def build_docx(q: dict, root: Path, out: Path,
             p = figure_path(root, fig)
             if p and p.exists() and p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
                 try:
-                    doc.add_picture(str(p), width=Inches(5.8))
+                    doc.add_picture(str(p), width=figure_width)
                 except Exception as exc:
                     warnings.append(f"figure embed failed: {p} ({exc})")
                     doc.add_paragraph(f"[图缺失：{fig.get('id', '')}]")
@@ -678,11 +714,12 @@ def build_docx(q: dict, root: Path, out: Path,
         doc.add_heading("变式", level=1)
         add_rich_text(doc, meta["variant_md"], docx_math, renderer, warnings)
 
-    review = q.get("review", {})
-    doc.add_heading("审核", level=1)
-    doc.add_paragraph(f"状态：{review.get('status', 'draft')}")
-    if review.get("uncertainties"):
-        doc.add_paragraph("待确认：" + "；".join(review["uncertainties"]))
+    # Date only: the audit trail lives in review.md, not on the printed card.
+    date = review_date(q)
+    if date:
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        p = doc.add_paragraph(date)
+        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     raw_dollars = [p.text for p in doc.paragraphs if "$" in p.text]
     if raw_dollars:

@@ -9,6 +9,7 @@
 ``new``    = intake.py (folder, source copy, hash, contact sheet, stubs)
 ``status`` = where am I, what is stale, what is next
 ``finish`` = preflight.py -> build_card.py -> validate_package.py -> report
+             (+ build_card_html.py with ``--html``)
 
 The scripts are invoked as child processes with an explicit UTF-8 decode, so
 Chinese paths and messages never turn into mojibake in the report.
@@ -77,6 +78,7 @@ def status(wd: Path) -> int:
     row("contact sheet", "source/contact.png", optional=True)
     ok_q, qp = row("question json", "text/question.json")
     row("card", "card.md")
+    row("printable html", "card.html", optional=True)
     row("review", "review.md")
     row("manifest", "manifest.json")
     figs = sorted(p.name for p in (wd / "figures").glob("fig-*.png")) if (wd / "figures").is_dir() else []
@@ -158,7 +160,8 @@ def _one_line(out: str, *prefixes) -> str:
     return " | ".join(parts)
 
 
-def finish(wd: Path, formula_mode="latex", strict=False, docx=None, verbose=False) -> int:
+def finish(wd: Path, formula_mode="latex", strict=False, docx=None, html=False,
+           verbose=False) -> int:
     """preflight + build + validate, then a 2-3 line report.
 
     Quiet by default: the card session should see one summary line, one STOP and one
@@ -215,6 +218,15 @@ def finish(wd: Path, formula_mode="latex", strict=False, docx=None, verbose=Fals
         print("== docx (explicit opt-in) ==")
         _run("build_card.py", [qjson, "--out", wd / "card.md", "--docx", docx,
                                "--formula-mode", "both"])
+    if html:
+        code, out4, err4 = _run("build_card_html.py",
+                                [wd / "card.md", "--out", wd / "card.html"], quiet=True)
+        if code != 0:
+            print(out4.rstrip())
+            print(err4.rstrip(), file=sys.stderr)
+            print("finish: html failed (card.md is still good)")
+            return code
+        print(out4.strip())
     return brief(wd)
 
 
@@ -307,6 +319,8 @@ def main(argv=None):
     p_fin.add_argument("--formula-mode", choices=("latex", "images", "both"), default="latex")
     p_fin.add_argument("--strict", action="store_true")
     p_fin.add_argument("--docx", type=Path, help="explicit opt-in Word export")
+    p_fin.add_argument("--html", action="store_true",
+                       help="also render card.html (one self-contained, printable file)")
     p_fin.add_argument("--verbose", action="store_true", help="print the child output in full")
 
     p_re = sub.add_parser("render", help="spec -> PNG + SVG + compare (engine auto-picked)")
@@ -327,7 +341,7 @@ def main(argv=None):
     if args.cmd == "render":
         return render(args.workdir, spec=args.spec, spec_json=args.spec_json, fig=args.fig)
     return finish(args.workdir, formula_mode=args.formula_mode, strict=args.strict,
-                  docx=args.docx, verbose=args.verbose)
+                  docx=args.docx, html=args.html, verbose=args.verbose)
 
 
 if __name__ == "__main__":

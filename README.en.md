@@ -16,6 +16,7 @@ Mistake Question Studio is a subject-agnostic AI skill and lightweight Python to
 - solves the question independently and writes a teachable analysis;
 - diagnoses the error instead of only marking it wrong;
 - exports a Markdown card — Word only when the user explicitly asks;
+- renders the same card as one self-contained, printable HTML file;
 - builds a searchable index for a question bank.
 
 It supports physics, chemistry, mathematics, English, biology, geography, history, politics, and other subjects through subject adapters.
@@ -45,6 +46,7 @@ python scripts/prepare_scan.py input.pdf work/id/source --dpi 300
 python scripts/clean_figure.py raw.png figures/fig-1.png --crop 120,80,980,720 --trim
 python scripts/extract_pdf.py input.pdf text --pages 1-3
 python scripts/build_card.py text/question.json --out card.md --question-out text/question.md --formula-mode both
+python scripts/build_card_html.py card.md --out card.html     # printable, self-contained
 python scripts/validate_package.py text/question.json --root .
 python scripts/build_index.py work --out work/index.md
 ```
@@ -52,6 +54,17 @@ python scripts/build_index.py work --out work/index.md
 Core dependencies: `pillow`, `numpy`. PDF/OCR: `pymupdf`, `pypdf`, `pytesseract`. Formula images: `requirements-formulas.txt` (`matplotlib`; `python-docx`/`latex2mathml`/`mathml2omml` only when exporting Word).
 
 Add `--docx card.docx` to `build_card.py` only when the user explicitly asks for a Word file.
+
+## Card layout
+
+The builder owns the layout, so every card looks the same:
+
+| Part | Shape |
+|---|---|
+| Title | `物理高三 · 王小明 · 错题卡` — subject + short grade, then the student's name (optional `student.name`), then 错题卡 |
+| Header | the ID only; status, source, and note stay in `question.json` / `review.md` |
+| Figures | 60% of the text column (shrunk by 40%), centred, caption underneath |
+| Footer | a single date — the sign-off day; no review section |
 
 ## Design principles
 
@@ -64,10 +77,11 @@ Add `--docx card.docx` to `build_card.py` only when the user explicitly asks for
 7. Keep every decision traceable: crop, mask, diagram spec, review note.
 8. Require a human review gate before publishing.
 9. Deliver Markdown by default; build Word only on explicit request.
+10. One house style for every card, rendered by the builder — never by the model.
 
 ## Demo
 
-See [`examples/incline-static/`](examples/incline-static/): a synthetic physics question with a clean embedded figure, `card.md`, `card.latex.md`, and a figure spec (`card.docx` there is an optional Word sample).
+See [`examples/incline-static/`](examples/incline-static/): a synthetic physics question with a clean embedded figure, `card.md`, `card.html`, `card.latex.md`, and a figure spec (`card.docx` there is an optional Word sample, from before the current layout).
 
 ## Documentation
 

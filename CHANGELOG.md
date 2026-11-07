@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.6.0 — 2026-11-07
+
+- **The card layout is the builder's job, not the model's.** Five rules, applied in
+  `build_card.py` and inherited by every output (Markdown, HTML, DOCX):
+  - title is `物理高三 · 王小明 · 错题卡` — subject + short grade (`高中三年级 → 高三`),
+    then the student's name when `student.name` is set, then 错题卡;
+  - the header carries the ID only — 状态 / 来源 / 备注 stay in `question.json` and
+    `review.md` instead of on paper;
+  - the closing 审核 section is gone; the card ends on one date, the sign-off day;
+  - figures print at 60% of the text column (shrunk by 40%), centred, caption underneath.
+- **`scripts/build_card_html.py` (new).** `card.md` → one standalone, printable HTML file:
+  figures and `formulas/eq-*.png` inlined as data URIs, A4 `@page`, no network needed.
+  Takes `card.md` or `text/question.json`; refuses to emit a card that still has raw
+  `$...$` (exit 3) unless `--allow-raw-math`. `run.py finish --html` runs it after the
+  build, and `run.py status` now lists `card.html`.
+- **New optional `student` field** in `question.json` (`{"name": "王小明"}`), documented in
+  `references/output-schema.md`. The privacy rule follows it: a personal card may name its
+  student; a shared or published card may not.
+- Two rendering bugs fixed while porting the renderer: emphasis that spans a formula image
+  (`*推力 ![formula](…) 与水平面成…*`) no longer shows literal asterisks, and inline
+  formulas no longer turn into full-width blocks — `:only-child` ignores text nodes, so the
+  old `p > img.formula:only-child` selector also matched 「B：把上式解出 $m$：」.
+- The bundled example (`examples/incline-static/`) is rebuilt in the new layout and gains
+  `card.html`; its `card.docx` is left as a pre-layout snapshot (Word export is opt-in).
+
 ## 0.5.1 — 2026-11-06
 
 - **`run.py finish` is quiet**: the four child reports collapse into one summary line, then

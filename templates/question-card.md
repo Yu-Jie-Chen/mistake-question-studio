@@ -1,7 +1,10 @@
-# {{subject}} · {{grade}} · 错题卡
+# {{subject_short}}{{grade_short}} · {{student}} · 错题卡
 
-> ID：`{{id}}`　|　状态：`{{status}}`
-> 来源：{{source}}
+> ID：`{{id}}`
+
+<!-- 这个模板只描述卡片的形状；真正生成卡片请用 build_card.py / build_card_html.py。
+     标题：科目+年级简称 → 学生姓名（有 student.name 才有） → 错题卡。
+     状态、来源、备注不进卡片；卡片以一个日期收尾。 -->
 
 ## 题目
 
@@ -64,9 +67,4 @@
 
 {{variant}}
 
-## 审核
-
-- 状态：`{{status}}`
-- 审核人：{{reviewer}}
-- 日期：{{date}}
-- 待确认：{{uncertainties}}
+{{date}}

@@ -4,13 +4,14 @@ description: >
   Turn wrong-question photos, screenshots, and PDF pages into clean, reusable
   study cards. Extract question stems and subquestions, separate printed content
   from student/teacher handwriting, crop or redraw figures without solution
-  marks, solve and analyze the problem, diagnose the error, and export Markdown
-  or DOCX. Works across physics, chemistry, mathematics, English, biology,
+  marks, solve and analyze the problem, diagnose the error, and export Markdown,
+  a printable self-contained HTML card, or DOCX. Works across physics, chemistry,
+  mathematics, English, biology,
   geography, history, and other subjects. Trigger phrases include 整理错题,
   错题本, 错题卡, 提取题目, 题目去痕, 重绘配图, 从截图/PDF 整理题目,
   生成答案与解析.
 metadata:
-  version: "0.2.0"
+  version: "0.6.0"
   author: "Yujie Chen"
   license: "MIT"
   repository: "https://github.com/Yu-Jie-Chen/mistake-question-studio"
@@ -38,15 +39,34 @@ work/<id>/
 │   └── fig-1.spec.json     # only when redrawn
 ├── formulas/               # optional formula images for Markdown
 ├── card.md                 # teacher/student-facing card — the deliverable
+├── card.html               # same card as one printable, self-contained file
 ├── card.latex.md           # raw-LaTeX source sidecar (optional)
 ├── manifest.json           # files, page numbers, tools, confidence
-└── review.md               # checks, uncertainties, teacher sign-off
+├── review.md               # checks, uncertainties, teacher sign-off
+└── xueji.export.json       # optional: one-way ingest payload for xueji-notebook (学记)
 ```
 
 > **Delivery default: Markdown only.** `card.md` is what you hand over. Do **not** build
 > `card.docx` unless the user explicitly asks for a Word file — in the default flow the whole
 > DOCX pipeline (python-docx, OMML, LibreOffice rendering) is skipped, together with the
 > `card.docx` items in the quality gates.
+>
+> **Printing or teaching from the card?** Add `card.html` — one self-contained file with the
+> figures and formulas inlined, sized for A4. Build it from `card.md`; never hand-edit it.
+
+### Card house style
+
+Every card looks the same, because the builder renders it, not the model:
+
+| Part | Shape |
+|---|---|
+| Title | `物理高三 · 王小明 · 错题卡` — subject+grade short form, then the student's name (when `student` is set), then 错题卡 |
+| Header | the ID alone. 状态 / 来源 / 备注 stay in `question.json` and `review.md` |
+| Figures | 60% of the text column (shrunk by 40%), centred, caption underneath |
+| Footer | one date — the sign-off day. No 审核 section, no checkboxes |
+
+`高中三年级` becomes `高三` on the card; keep the school's wording in `grade`. Card
+sections in order: 题目 → 答案 → 解析 → 错因诊断 → 知识点与标签 → 变式 → 日期.
 
 ## Non-negotiable rules
 
@@ -56,10 +76,11 @@ work/<id>/
 4. **Trace, do not invent.** A redrawn figure must preserve topology, connections, directions, dashed/solid style, labels, and proportions stated by the question. If geometry cannot be established, stop and ask.
 5. **Solve independently.** The answer must be derived after extraction, not copied from the student's marks or from an answer key alone. Cross-check units, signs, and edge cases.
 6. **Teacher confirmation before publishing.** A card can be generated automatically, but it enters a shared question bank only after a human checks the `review.md` gates.
-7. **Privacy and copyright.** Remove names, school names, student IDs, and scores. Do not publish third-party questions, scans, or answer keys without permission.
+7. **Privacy and copyright.** A card issued to one student may carry that student's name in the title (`student.name`) — it is their own mistake book. Nothing else: no school names, no class ranks, no student IDs, no scores. Before a card leaves that pair of hands (shared bank, published example, repo), drop `student` entirely. Do not publish third-party questions, scans, or answer keys without permission.
 8. **One source of truth.** `text/question.json` is authoritative; `card.md` is its rendering. If they disagree, fix the JSON and rebuild.
 9. **Figures are embedded, not merely stored.** If the stem depends on a figure, `card.md` must contain it. A figure that exists only in `figures/` is a failed build.
 10. **Formulas are rendered, not left as raw source.** In `card.md`, math must either be rendered by the target viewer (LaTeX/KaTeX-capable viewer) or appear as `formulas/eq-*.png` images; a card that only works with a raw `$...$` dump is not finished. (If a Word file is explicitly requested, it must use native equations or formula images, never raw `$...$`.)
+11. **Pushing to an external notebook is a publication event.** Only a `reviewed`/`published` card may be exported (`scripts/export_xueji.py` refuses a `draft`), and the work folder stays the source of truth: the notebook is a projection, never the place where a card is edited.
 
 ## Choose a route
 
@@ -70,6 +91,7 @@ work/<id>/
 | A folder of many questions | **Batch** | [`references/workflow.md`](references/workflow.md) §Batch |
 | Only clean/redraw the figure | **Figure-only** | [`references/figure-redraw.md`](references/figure-redraw.md) |
 | Only extract text (no card) | **Extract-only** | [`references/extraction.md`](references/extraction.md) |
+| Push a reviewed card into a xueji-notebook (学记) database | any, after sign-off | [`references/xueji-export.md`](references/xueji-export.md) |
 | Need subject-specific notation or answer style | any | [`references/subject-adapters.md`](references/subject-adapters.md) |
 | Before export/review | any | [`references/quality-gates.md`](references/quality-gates.md) |
 
@@ -84,7 +106,7 @@ If the request is ambiguous, default to **Standard** for PDFs and **Quick** for 
 4. **Handle figures** — classify, crop/clean/redraw, and compare before/after.
 5. **Solve and analyze** — solve independently; write steps, key points, pitfalls, and a compact diagnosis.
 6. **Diagnose** — separate "what the student wrote" from "why it is wrong"; classify the error.
-7. **Build** — render `card.md` from `question.json`; no DOCX unless explicitly requested.
+7. **Build** — render `card.md` from `question.json`; no DOCX unless explicitly requested. Add `card.html` when the card will be printed or used in class.
 8. **Validate and review** — run the quality gates; record uncertainties and teacher sign-off.
 
 ## Minimum output contract
@@ -98,7 +120,7 @@ Every finished card must contain:
 - the final answer, with confidence level;
 - a step-by-step analysis that a student can follow;
 - knowledge points, common pitfalls, and one error diagnosis;
-- a source note and a review status.
+- the card's ID, and the date it was signed off.
 
 The exact fields are defined in [`references/output-schema.md`](references/output-schema.md).
 
@@ -113,7 +135,7 @@ The exact fields are defined in [`references/output-schema.md`](references/outpu
 | Answer | Is the answer independently verified, with units and signs? |
 | Diagnosis | Is the error classification specific and actionable? |
 | Export | Do `card.md` and `question.json` agree? |
-| Privacy | Are names, schools, IDs, and scores removed? |
+| Privacy | Is the name on the card intended for this student, and are school names, IDs, and scores gone? |
 | Rights | Is publication permitted? |
 
 Full checklist: [`references/quality-gates.md`](references/quality-gates.md).
@@ -184,11 +206,20 @@ python scripts/build_card.py text/question.json \
   --out card.md --question-out text/question.md \
   --formula-mode both
 
+# 4b. Printable card: one self-contained HTML file (figures + formulas inlined)
+python scripts/build_card_html.py card.md --out card.html
+#     or straight from the source of truth, no intermediate file to forget:
+python scripts/run.py finish <workdir> --html
+
 # 5. Validate references, required fields, and placeholders
 python scripts/validate_package.py text/question.json --root .
 
 # 6. Build a batch index
 python scripts/build_index.py work --out index.md
+
+# 7. Export one reviewed card as the notebook ingest payload (blocked while draft)
+python scripts/export_xueji.py work/20260101-physics-001 \
+  --subject-id <Subject.id> --grade 高三上
 ```
 
 Core dependency: `pillow` and `numpy`. Formula images: `requirements-formulas.txt` (`matplotlib`; `python-docx`/`latex2mathml`/`mathml2omml` only for an explicitly requested Word file). PDF/OCR: `pymupdf`/`pypdf`/`pdf2image`, `pytesseract`.

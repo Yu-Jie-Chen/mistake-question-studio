@@ -11,7 +11,8 @@ The validator in [`../scripts/validate_package.py`](../scripts/validate_package.
   "schema_version": "1.0",
   "id": "20260101-physics-incline-001",
   "subject": "physics",
-  "grade": "高中一年级",
+  "grade": "高中三年级",
+  "student": {},
   "source": {},
   "question": {},
   "figures": [],
@@ -52,6 +53,26 @@ Use `other` only when none fit; add a `meta.tags` entry.
 ### `grade` (required)
 
 Free text, e.g. `初中二年级`, `高中一年级`, `Grade 10`, `大学先修`.
+
+The card title uses the short form: `高中三年级 → 高三`, `初中二年级 → 初二`; `高三上`
+loses the term. Keep the full wording in `grade` — it is what a school's records use —
+and let the builder shorten it on paper.
+
+### `student` (optional)
+
+```json
+{
+  "student": { "name": "王小明" }
+}
+```
+
+Set it when the card is issued to one student rather than a class. The name appears in
+the title (`物理高三 · 王小明 · 错题卡`) and nowhere else on the card. Omit it — or leave
+`name` empty — and the title falls back to `物理高三 · 错题卡`.
+
+A name on a private study card is fine. Before the card is exported or shared beyond the
+student and their teacher, strip it (see the privacy gate), or keep `student` out of the
+payload entirely.
 
 ### `source` (required)
 
@@ -207,6 +228,10 @@ Allowed `status`: `draft`, `reviewed`, `published`.
 - `draft`: extracted, not yet checked.
 - `reviewed`: a human checked all gates.
 - `published`: approved for a shared bank.
+
+Only `date` reaches the card: it is printed as the closing line, in lieu of a 审核
+section. `status`, `reviewer` and `uncertainties` stay in `review.md`, in this file, and
+in the question bank — they are workflow state, not something a student needs on paper.
 
 ## Markdown conventions
 

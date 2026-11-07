@@ -90,6 +90,9 @@ Run these gates before a card is marked `reviewed`. A blocking failure stops the
 - [ ] Figure paths are relative and exist.
 - [ ] ID is unique in the batch.
 - [ ] `review.status` is correct.
+- [ ] The card follows the house style: `物理高三 · 学生 · 错题卡` title, ID-only header,
+      figures at 60% of the column, one closing date, no 审核 section.
+- [ ] `card.html` (when delivered) opens offline: no missing image, no visible `$`.
 
 If the user explicitly requested a Word file, also check: `card.docx` opens, images are embedded,
 it uses native equations or formula images with **no raw `$...$`**, and it agrees with `card.md`.

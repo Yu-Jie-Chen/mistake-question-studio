@@ -34,7 +34,7 @@
       ↓
 独立求解 + 解析 + 错因诊断
       ↓
-错题卡（Markdown）
+错题卡（Markdown + 可打印 HTML）
       ↓
 质量检查 + 教师审核
 ```
@@ -84,6 +84,28 @@ Markdown 里显示渲染后的公式图片（或交给支持 LaTeX 的阅读器�
 
 每张卡都有 `review.md` 和质量门。未通过审核的卡只能是 `draft`，不能进入公共题库。
 
+### 8. 卡片长相统一，能直接打印
+
+版式不靠模型临场发挥，由构建脚本决定：
+
+| 位置 | 长相 |
+|---|---|
+| 标题 | `物理高三 · 王小明 · 错题卡`：科目 + 年级简称 → 学生姓名 → 错题卡 |
+| 卡头 | 只留 ID。状态、来源、备注留在 `question.json` 和 `review.md` 里，不上纸 |
+| 配图 | 正文宽度的 60%（即缩小 40%），居中，图注在图下 |
+| 落款 | 一个日期——签核那天。没有“审核”段落，没有待办勾选框 |
+
+年级按学校口径写进 `grade`（`高中三年级`），卡面上自动写成 `高三`。学生姓名是可选的
+`student.name`：填了才出现，不填就是 `物理高三 · 错题卡`；卡一旦要外发（题库、公开示例），
+就把 `student` 去掉。
+
+要打印或上课用，再生成一个 `card.html`——单文件、图文内联、带 A4 打印样式，断网也能开：
+
+```bash
+python scripts/build_card_html.py card.md --out card.html
+python scripts/run.py finish <workdir> --html    # 一条命令连 card.md 一起重建
+```
+
 ---
 
 ## 演示
@@ -98,7 +120,8 @@ Markdown 里显示渲染后的公式图片（或交给支持 LaTeX 的阅读器�
 - [示例 question.json](examples/incline-static/question.json)
 - [示例纯题干 question.md](examples/incline-static/question.md)
 - [示例 card.md](examples/incline-static/card.md)（公式图片 + 配图）
-- [示例 card.docx](examples/incline-static/card.docx)（可选：仅在明确要求 Word 时才生成的版本）
+- [示例 card.html](examples/incline-static/card.html)（单文件可打印版）
+- [示例 card.docx](examples/incline-static/card.docx)（可选：仅在明确要求 Word 时才生成的版本，示例为改版前的快照）
 - [示例 card.latex.md](examples/incline-static/card.latex.md)（LaTeX 源）
 - [示例图规格](examples/incline-static/figures/fig-1.spec.json)
 

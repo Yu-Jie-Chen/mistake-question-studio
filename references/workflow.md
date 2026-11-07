@@ -191,10 +191,21 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
 
    Add `--docx card.docx` **only** when the user explicitly asks for a Word file.
 
-5. Check the output package:
+5. If the card will be printed or handed out, render the HTML card as well:
+
+   ```bash
+   python scripts/build_card_html.py card.md --out card.html
+   ```
+
+   One file, self-contained: figures and formulas are inlined as data URIs, A4 print
+   styles included. The title, the ID-only header, the 60%-width figures and the closing
+   date come from the builder — do not hand-edit them.
+
+6. Check the output package:
    - `card.md` references every figure and every formula image;
    - `card.latex.md` is the raw-LaTeX sidecar;
-   - `formulas/` contains the formula images used by Markdown (if any).
+   - `formulas/` contains the formula images used by Markdown (if any);
+   - `card.html` opens offline with no missing image and no visible `$`.
    - `card.docx` is out of scope unless the user asked for Word; then check that it
      contains every figure and native equations (not raw `$...$`).
 

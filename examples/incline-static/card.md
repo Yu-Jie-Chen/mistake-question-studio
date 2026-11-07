@@ -1,8 +1,6 @@
-# 物理 · 高中一年级 · 错题卡
+# 物理高一 · 错题卡
 
-> ID：`20260101-physics-incline-001`　|　状态：`reviewed`
-> 来源：其他来源，source/README.md，第 1 页
-> 备注：Synthetic demo authored for this repository; not taken from a textbook.
+> ID：`20260101-physics-incline-001`
 
 ## 题目
 
@@ -62,8 +60,4 @@
 
 若 ![formula](formulas/eq-a4520cb40c70.png)，物块是否仍能静止？请说明理由。
 
-## 审核
-
-- 状态：`reviewed`
-- 审核人：Demo
-- 日期：2026-01-01
+2026-01-01
