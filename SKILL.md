@@ -253,3 +253,7 @@ mistake-question-studio/
 ## Design principle
 
 The skill encodes **decisions and evidence**, not a hidden chain of thought. Every non-trivial choice should leave a trace: a crop rectangle, a diagram spec, a confidence level, or a review note. That is what makes a card reproducible by another teacher.
+
+## 自动归档到教学工作台
+
+生成并检查成品后，默认完成归档步骤（用户明确只要文件时跳过）。读取 [工作台归档流程](references/workbench-archive.md)，调用随技能附带的 scripts/archive_to_workbench.py，按对应学生归档；不要只把文件复制到工作台目录。先核对学生，重名时确认 ID；未建档时不要擅自新建。成功以 ok=true 回执为准；未启动或无法连接时保留待归档清单并如实告知。报告/题目保持草稿待审核，不自动发布；重试复用原清单，修改版使用新清单。

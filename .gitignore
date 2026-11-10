@@ -19,3 +19,8 @@ work/
 
 # Local review exports
 review-local/
+
+# Local archive payloads and receipts contain student data
+*.archive.json
+*.archive.receipt.json
+.wenyuan-workbench.json

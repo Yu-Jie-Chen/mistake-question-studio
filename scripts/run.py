@@ -321,6 +321,8 @@ def main(argv=None):
     p_fin.add_argument("--docx", type=Path, help="explicit opt-in Word export")
     p_fin.add_argument("--html", action="store_true",
                        help="also render card.html (one self-contained, printable file)")
+    p_fin.add_argument("--archive-manifest", type=Path)
+    p_fin.add_argument("--student-id")
     p_fin.add_argument("--verbose", action="store_true", help="print the child output in full")
 
     p_re = sub.add_parser("render", help="spec -> PNG + SVG + compare (engine auto-picked)")
@@ -340,8 +342,19 @@ def main(argv=None):
         return status(args.workdir)
     if args.cmd == "render":
         return render(args.workdir, spec=args.spec, spec_json=args.spec_json, fig=args.fig)
-    return finish(args.workdir, formula_mode=args.formula_mode, strict=args.strict,
+    code = finish(args.workdir, formula_mode=args.formula_mode, strict=args.strict,
                   docx=args.docx, html=args.html, verbose=args.verbose)
+    if code == 0 and args.archive_manifest:
+        from archive_to_workbench import main as archive
+        command = ['--type', 'mistake-question', '--input', str(args.workdir / 'text/question.json'),
+            '--manifest', str(args.archive_manifest), '--file', str(args.workdir / 'card.md')]
+        for output in [args.docx, args.workdir / 'card.html' if args.html else None]:
+            if output:
+                command += ['--file', str(output)]
+        if args.student_id:
+            command += ['--student-id', args.student_id]
+        return archive(command)
+    return code
 
 
 if __name__ == "__main__":

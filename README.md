@@ -401,3 +401,11 @@ MIT。见 [`LICENSE`](LICENSE)。
 It is designed for teachers across physics, chemistry, mathematics, English, biology, geography, history, and politics. The workflow prioritizes source fidelity, traceable figure reconstruction, independent answer verification, and a human review gate.
 
 Start with [`SKILL.md`](SKILL.md). The demo is in [`examples/incline-static/`](examples/incline-static/).
+
+## 自动归档到文源教学工作台
+
+成品检查通过后，Agent 可以直接归档到对应学生，无需再手动选择文件上传。支持本地工作台源码版及含统一接口的安装版：反馈进入学生专属资料，试卷分析进入学情诊断库，错题进入学生错题本与待审题库。诊断反馈还可关联对应试卷分析。
+
+一次配置本机连接后，Skill 会完成学生匹配、提交和回执检查。学生重名时需指定 ID；工作台没启动时先保留文件和待归档清单，之后原样重试不会重复入库。新题目/诊断不会自动发布。
+
+具体配置、命令和失败重试见 [工作台自动归档](references/workbench-archive.md)。客户端只依赖 Python 标准库，学生文件、归档清单、回执和令牌不上传 GitHub。
