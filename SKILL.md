@@ -11,7 +11,7 @@ description: >
   错题本, 错题卡, 提取题目, 题目去痕, 重绘配图, 从截图/PDF 整理题目,
   生成答案与解析.
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
   author: "Yujie Chen"
   license: "MIT"
   repository: "https://github.com/Yu-Jie-Chen/mistake-question-studio"
@@ -161,6 +161,17 @@ For a folder of images/PDFs:
 3. Generate `index.md` with [`scripts/build_index.py`](scripts/build_index.py).
 4. Run validation on every card before indexing.
 5. Keep a `batch-review.md` that lists skipped pages and why.
+6. Run [`scripts/batch_prepare.py`](scripts/batch_prepare.py) once over the whole folder,
+   then follow its `ROUND 1..N` read order. The reading budget is what makes a batch cheap:
+   every image read stays in the context for the rest of the session, so cost grows
+   linearly with the number of images, and each extra image slows every later step.
+   - cut once, never re-crop; put `_inspect/` behind `--clean`
+   - read at most 2–4 images per round; a whole page that fits 1600 px is one image
+   - write each question into `text/question.json` as soon as its round is read
+7. Run [`scripts/card_lint.py`](scripts/card_lint.py) over the whole batch **before**
+   rebuilding anything: it reports every formula and card fault for all cards in one
+   pass, instead of one rebuild per discovery.
+
 
 ## Helper scripts
 
@@ -190,6 +201,13 @@ python scripts/draw_scene.py figures/fig-1.spec.json --out figures/fig-1.png \
 python scripts/run.py render work/20260101-physics-001        # spec at figures/fig-1.spec.json
 python scripts/run.py render work/20260101-physics-001 --spec-json @spec.json
 
+# 0e. A batch of pages: cut once, cut few, read in bounded rounds
+python scripts/batch_prepare.py src/ --clean      # 6 photos -> _inspect/ + a read order
+python scripts/batch_prepare.py src/p1.png --split bands --max-per-read 2 --max-mpix 2.0
+#     Prints ROUND 1..N: read those images in that order, then write text/question.json.
+#     Whole page by default when it already fits 1600 px - a page read whole can never
+#     split a question in half. --split bands is for big photos where you must zoom.
+
 # 1. Render PDF pages or normalise images
 python scripts/prepare_scan.py input.pdf work/20260101-physics-001/source --dpi 300
 
@@ -213,6 +231,14 @@ python scripts/run.py finish <workdir> --html
 
 # 5. Validate references, required fields, and placeholders
 python scripts/validate_package.py text/question.json --root .
+
+# 5b. Formula traps + card consistency, all cards in one call, before any rebuild
+python scripts/card_lint.py work/                 # exit 1 on findings
+python scripts/card_lint.py work/<id> --strict
+python scripts/card_lint.py --math '\le 5'        # while still drafting a formula
+#     CJK inside $...$, \le/\ge, amsmath-only macros, unbalanced $, and an actual
+#     mathtext render probe; then card.md raw '$', dead image refs, missing sections,
+#     a card older than its question.json.
 
 # 6. Build a batch index
 python scripts/build_index.py work --out index.md

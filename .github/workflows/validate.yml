@@ -29,6 +29,21 @@ jobs:
           python scripts/run.py status /tmp/work/ci-smoke-001
       - name: Validate the demo package
         run: python scripts/validate_package.py examples/incline-static/question.json --root examples/incline-static
+      - name: Lint the demo card (formulas + card consistency)
+        run: python scripts/card_lint.py examples/incline-static
+      - name: card_lint must reject unsupported macros and CJK inside math
+        run: |
+          if python scripts/card_lint.py --math '\le 5'; then
+            echo "card_lint accepted \\le" >&2; exit 1
+          fi
+          if python scripts/card_lint.py --math '$m=2\text{千克}$'; then
+            echo "card_lint accepted CJK inside math" >&2; exit 1
+          fi
+      - name: Smoke-test batch_prepare (one page, bounded read plan)
+        run: |
+          python scripts/batch_prepare.py examples/incline-static/figures/fig-1.before.png \
+            --out /tmp/prep --clean
+          test -f /tmp/prep/plan.json && test -f /tmp/prep/plan.md
       - name: Render the demo card with formulas and DOCX
         run: |
           python scripts/build_card.py examples/incline-static/question.json \

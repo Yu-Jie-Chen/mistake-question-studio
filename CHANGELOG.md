@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.7.0 — 2026-11-12
+
+Measured on a real nine-question batch: one turn took **62 minutes**, and **90% of it
+was waiting for the model**, not running tools (123 round trips, 5.5 min of actual tool
+work). Two causes, both now encoded in scripts:
+
+- **Context grew, so every step got slower.** 33 `read_image` calls — 21 of them
+  hand-cut zoom crops — stayed resident, and the same steps ran at 37 s each before
+  the context was compacted versus 7 s after. Cutting images one at a time, on demand,
+  is what bought that bill.
+- **Formula faults were discovered one rebuild at a time.** Seven of the rebuild rounds
+  were CJK inside `$...$` and `\le` / `\ge`, which `build_card.FormulaRenderer.render`
+  swallows: it returns `None` and the failure only surfaces at the HTML step.
+
+- **`scripts/batch_prepare.py` (new).** Whole folder in one call: normalise pages, cut
+  question blocks by ink gaps, and print a bounded read order (`ROUND 1..N`, at most
+  `--max-per-read` images and `--max-mpix` megapixels per round). Defaults favour the
+  cheap, safe move — a page whose long side fits 1600 px is read **whole** (one image,
+  and a whole page can never split a question in half); `--split bands` is for big
+  photos where the downscale would eat the small print. Adaptive gap threshold
+  (2.5× the page's own median line gap) so reflowed screenshots stop cutting mid-question,
+  sliver blocks folded into their neighbours instead of becoming their own image,
+  `--clean` so `_inspect/` never accumulates. Emits `_inspect/plan.json` + `plan.md`.
+- **`scripts/card_lint.py` (new).** Every formula fault and every card inconsistency for
+  **all** cards in **one** call, before anything is rebuilt: CJK/fullwidth inside
+  `$...$`, `\le`/`\ge`/`\lt`/`\gt`, amsmath-only macros (`\begin`, `\ce`, `\boxed`,
+  `\overset`, …), `\\` inside math, unbalanced `$`, plus a real **mathtext render probe**
+  through the same path the builder uses — so a pass here is a pass there. Once
+  `card.md` exists it also checks for raw `$` that survived the build, dead image
+  references, missing sections, a missing date, and a card older than its
+  `question.json`. `--math LATEX` lints one formula while it is still being drafted;
+  `--strict` promotes warnings. Measured on the nine real cards: 0 findings (no false
+  positives), against 14 findings in one run on a deliberately broken fixture.
+- **`scripts/preflight.py`: fixed a hard crash on Python 3.11.** The unbalanced-`$`
+  check built its message in an f-string containing a backslash, which only Python 3.12
+  accepts — the gate died with a SyntaxError before it could report anything, on every
+  card. Now counts first, formats after.
+- **CI** byte-compiles both new scripts and smoke-tests them on the demo package.
+
 ## 0.6.0 — 2026-11-07
 
 - **The card layout is the builder's job, not the model's.** Five rules, applied in
