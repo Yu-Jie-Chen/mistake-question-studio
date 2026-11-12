@@ -482,8 +482,10 @@ def main(argv=None):
             if shown >= args.max_print:
                 continue
             shown += 1
-            ink = f"{b['ink_pct']:>5.1f}%" if b["hint"] != "page-view" else "    --"
-            print(f"      {b['id']:<8} lines={b['lines']:<3} ink={ink} "
+            view = b["hint"] == "page-view"
+            ink = "    --" if view else f"{b['ink_pct']:>5.1f}%"
+            lines = "--" if view else b["lines"]
+            print(f"      {b['id']:<8} lines={lines:<3} ink={ink} "
                   f"{b['hint']:<10} {b['width']}x{b['height']} -> _inspect/{b['crop']}")
     for r in plan["read_plan"]:
         print(f"ROUND {r['round']}  ({r['mpix']} MPix)  " + "  ".join(f.split("_inspect/")[-1] for f in r["files"]))

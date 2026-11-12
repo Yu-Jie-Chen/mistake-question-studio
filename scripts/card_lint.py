@@ -269,8 +269,12 @@ def check_card_md(card: Path, qjson: Path, probe: RenderProbe):
     html = card.with_suffix(".html")
     if html.exists():
         head = html.read_text(encoding="utf-8", errors="replace")
-        if not re.search(r'src="data:', head):
+        inlined = len(re.findall(r'src="data:', head))
+        expected = len(re.findall(r"!\[[^\]]*\]\(([^)\s]+)", text))
+        if inlined == 0:
             warnings.append("card.html: no inlined image found (not self-contained)")
+        elif expected and inlined < expected:
+            warnings.append(f"card.html: inlines {inlined} of {expected} images from card.md")
         if re.search(r"\$\$?[^$\n]{2,60}\$\$?", head):
             warnings.append("card.html: a raw $...$ string is still visible in the markup")
     return errors, warnings
