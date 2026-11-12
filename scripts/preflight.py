@@ -140,7 +140,8 @@ def check(qjson: Path, strict=False):
         if not isinstance(val, str) or not val:
             continue
         if not _dollars_balanced(val):
-            errors.append(f"{section}.{key}: unbalanced '$' ({len(re.findall(r'(?<!\\)\$', val))} delimiters)")
+            n_dollars = len(re.findall(r"(?<!\\)\$", val))
+            errors.append(f"{section}.{key}: unbalanced '$' ({n_dollars} delimiters)")
     for path, text in _walk_strings(q):
         for ph in PLACEHOLDERS:
             if ph in text:
