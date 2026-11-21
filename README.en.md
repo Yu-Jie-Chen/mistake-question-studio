@@ -45,7 +45,7 @@ Or use the scripts directly:
 python scripts/prepare_scan.py input.pdf work/id/source --dpi 300
 python scripts/clean_figure.py raw.png figures/fig-1.png --crop 120,80,980,720 --trim
 python scripts/extract_pdf.py input.pdf text --pages 1-3
-python scripts/build_card.py text/question.json --out card.md --question-out text/question.md --formula-mode both
+python scripts/build_card.py text/question.json --out card.md --question-out text/question.md --formula-mode both --strict
 python scripts/build_card_html.py card.md --out card.html     # printable, self-contained
 python scripts/validate_package.py text/question.json --root .
 python scripts/build_index.py work --out work/index.md

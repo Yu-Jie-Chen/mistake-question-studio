@@ -293,28 +293,32 @@ class FormulaRenderer:
         key = (latex, display)
         if key in self.cache:
             return self.cache[key]
-        digest = hashlib.sha1(f"{latex}|{display}".encode("utf-8")).hexdigest()[:12]
+        # Bump the render version when geometry changes; old, clipped PNGs must
+        # not be reused just because their LaTeX source is unchanged.
+        digest = hashlib.sha1(f"canvas-v2|{latex}|{display}".encode("utf-8")).hexdigest()[:12]
         path = self.dir / f"eq-{digest}.png"
         if not path.exists():
             try:
-                from matplotlib import mathtext
-                from matplotlib.font_manager import FontProperties
+                from matplotlib.figure import Figure
+                from matplotlib.backends.backend_agg import FigureCanvasAgg
                 from PIL import Image, ImageChops, ImageOps
 
                 source = f"${self.clean_latex(latex)}$"
-                mathtext.math_to_image(
-                    source, str(path), dpi=210 if display else 160,
-                    format="png",
-                    prop=FontProperties(size=14 if display else 10),
-                )
-                # Trim the generous white border so inline images are compact.
+                # math_to_image uses a tight advance-width canvas that can cut
+                # off the final glyph. Save a padded text artist's full bounds.
+                fig = Figure(figsize=(1, 1), dpi=210 if display else 160)
+                FigureCanvasAgg(fig)
+                fig.text(0, 0, source, fontsize=14 if display else 10)
+                fig.savefig(path, format="png", bbox_inches="tight",
+                            pad_inches=0.045, facecolor="white")
+                # Trim only after the full glyphs have been rasterized.
                 im = Image.open(path).convert("RGBA")
                 rgb = im.convert("RGB")
                 bg = Image.new("RGB", rgb.size, "white")
                 bbox = ImageChops.difference(rgb, bg).getbbox()
                 if bbox:
                     im = im.crop(bbox)
-                im = ImageOps.expand(im, border=3, fill=(255, 255, 255, 0))
+                im = ImageOps.expand(im, border=4, fill=(255, 255, 255, 0))
                 im.save(path, "PNG")
             except Exception:
                 path.unlink(missing_ok=True)

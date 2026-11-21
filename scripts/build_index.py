@@ -38,7 +38,8 @@ def main() -> int:
         if not q:
             skipped.append((f, "invalid JSON"))
             continue
-        card = f.parent / "card.md"
+        root = f.parent.parent if f.parent.name.lower() == "text" else f.parent
+        card = root / "card.md"
         if not card.exists():
             skipped.append((f, "card.md missing"))
         rows.append((q, f, card))

@@ -36,7 +36,7 @@ class HookTests(unittest.TestCase):
                     import run
                     (work/'text').mkdir()
                     (work/'text/question.json').write_text(json.dumps({'student':{'name':'示例学生'},'subject':'physics','question':{'stem_md':'示例题干'},'answer':{'final_md':'答案'}},ensure_ascii=False),encoding='utf-8')
-                    (work/'card.md').write_text('示例成品',encoding='utf-8')
+                    (work/'card.html').write_text('<!doctype html><p>示例成品</p>',encoding='utf-8')
                     args = ['finish',str(work),'--archive-manifest',str(work/'result.archive.json')]
                     with patch.object(run,'finish',return_value=0):
                         self.assertEqual(run.main(args),0)

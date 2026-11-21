@@ -39,7 +39,8 @@ def disp(p) -> str:
 
 def _run(script, args, quiet=False):
     cmd = [sys.executable, str(HERE / script)] + [str(a) for a in args]
-    env = dict(**__import__("os").environ, PYTHONIOENCODING="utf-8")
+    env = __import__("os").environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
     proc = subprocess.run(cmd, capture_output=True, text=True, env=env,
                           encoding="utf-8", errors="replace")
     if not quiet:
@@ -108,13 +109,12 @@ def status(wd: Path) -> int:
     if notes:
         print("  " + " | ".join(notes))
 
-    # Stop signal: the card is already built and up to date -> deliver it and end the
-    # session instead of re-entering the folder (each extra round re-bills the history).
+    # File freshness proves generation, not visual correctness in the target viewer.
     card = wd / "card.md"
     stale = bool(card.exists() and ok_q and qp.exists()
                  and card.stat().st_mtime < qp.stat().st_mtime)
     if card.exists() and not stale:
-        print("STOP: card built — deliver it, do not re-enter")
+        print("BUILT: card is current; visual review is not inferred from file existence")
 
     print("NEXT")
     if not (wd / "text" / "question.json").exists():
@@ -160,12 +160,11 @@ def _one_line(out: str, *prefixes) -> str:
     return " | ".join(parts)
 
 
-def finish(wd: Path, formula_mode="latex", strict=False, docx=None, html=False,
+def finish(wd: Path, formula_mode="both", strict=False, docx=None, html=False,
            verbose=False) -> int:
     """preflight + build + validate, then a 2-3 line report.
 
-    Quiet by default: the card session should see one summary line, one STOP and one
-    NEXT line, because every line of output is re-billed on every later request.
+    Quiet by default: report generation separately from the remaining visual review.
     ``--verbose`` restores the full child output.
     """
     wd = wd.resolve()
@@ -183,7 +182,7 @@ def finish(wd: Path, formula_mode="latex", strict=False, docx=None, html=False,
 
     code, out2, err2 = _run("build_card.py", [qjson, "--out", wd / "card.md",
                                               "--question-out", wd / "text" / "question.md",
-                                              "--formula-mode", formula_mode], quiet=True)
+                                              "--formula-mode", formula_mode, "--strict"], quiet=True)
     if code != 0:
         print(out2.rstrip())
         print(err2.rstrip(), file=sys.stderr)
@@ -216,8 +215,11 @@ def finish(wd: Path, formula_mode="latex", strict=False, docx=None, html=False,
 
     if docx:
         print("== docx (explicit opt-in) ==")
-        _run("build_card.py", [qjson, "--out", wd / "card.md", "--docx", docx,
-                               "--formula-mode", "both"])
+        code, _, _ = _run("build_card.py", [qjson, "--out", wd / "card.md", "--docx", docx,
+                                          "--formula-mode", "both", "--strict"])
+        if code != 0:
+            print("finish: docx failed")
+            return code
     if html:
         code, out4, err4 = _run("build_card_html.py",
                                 [wd / "card.md", "--out", wd / "card.html"], quiet=True)
@@ -231,14 +233,14 @@ def finish(wd: Path, formula_mode="latex", strict=False, docx=None, html=False,
 
 
 def brief(wd: Path) -> int:
-    """Two lines: is the card ready to hand over, and what is left."""
+    """Report generation state and the remaining visual review."""
     wd = wd.resolve()
     card, qjson = wd / "card.md", wd / "text" / "question.json"
     stale = bool(card.exists() and qjson.exists()
                  and card.stat().st_mtime < qjson.stat().st_mtime)
     if card.exists() and not stale:
-        print("STOP: card built — deliver it, do not re-enter")
-        print("NEXT: check card.md against the source, finish review.md, present")
+        print("BUILT: card is current; visual review is not inferred from file existence")
+        print("NEXT: compare with source, view each delivery surface, record evidence in review.md")
     elif card.exists() and stale:
         print("NEXT: card.md is older than question.json -> re-run finish")
     elif not qjson.exists():
@@ -316,7 +318,7 @@ def main(argv=None):
 
     p_fin = sub.add_parser("finish", help="preflight + build + validate (quiet)")
     p_fin.add_argument("workdir", type=Path)
-    p_fin.add_argument("--formula-mode", choices=("latex", "images", "both"), default="latex")
+    p_fin.add_argument("--formula-mode", choices=("latex", "images", "both"), default="both")
     p_fin.add_argument("--strict", action="store_true")
     p_fin.add_argument("--docx", type=Path, help="explicit opt-in Word export")
     p_fin.add_argument("--html", action="store_true",
@@ -343,17 +345,20 @@ def main(argv=None):
     if args.cmd == "render":
         return render(args.workdir, spec=args.spec, spec_json=args.spec_json, fig=args.fig)
     code = finish(args.workdir, formula_mode=args.formula_mode, strict=args.strict,
-                  docx=args.docx, html=args.html, verbose=args.verbose)
+                  docx=args.docx, html=args.html or bool(args.archive_manifest), verbose=args.verbose)
     if code == 0 and args.archive_manifest:
         from archive_to_workbench import main as archive
         command = ['--type', 'mistake-question', '--input', str(args.workdir / 'text/question.json'),
-            '--manifest', str(args.archive_manifest), '--file', str(args.workdir / 'card.md')]
-        for output in [args.docx, args.workdir / 'card.html' if args.html else None]:
+            '--manifest', str(args.archive_manifest), '--file', str(args.workdir / 'card.html')]
+        for output in [args.docx]:
             if output:
                 command += ['--file', str(output)]
         if args.student_id:
             command += ['--student-id', args.student_id]
-        return archive(command)
+        code = archive(command)
+        if code == 0:
+            print("ARCHIVED: receipt confirms storage; inspect question and material previews in the workbench")
+        return code
     return code
 
 

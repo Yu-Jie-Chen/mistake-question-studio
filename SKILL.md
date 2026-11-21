@@ -11,7 +11,7 @@ description: >
   错题本, 错题卡, 提取题目, 题目去痕, 重绘配图, 从截图/PDF 整理题目,
   生成答案与解析.
 metadata:
-  version: "0.7.0"
+  version: "0.7.1"
   author: "Yujie Chen"
   license: "MIT"
   repository: "https://github.com/Yu-Jie-Chen/mistake-question-studio"
@@ -79,7 +79,7 @@ sections in order: 题目 → 答案 → 解析 → 错因诊断 → 知识点�
 7. **Privacy and copyright.** A card issued to one student may carry that student's name in the title (`student.name`) — it is their own mistake book. Nothing else: no school names, no class ranks, no student IDs, no scores. Before a card leaves that pair of hands (shared bank, published example, repo), drop `student` entirely. Do not publish third-party questions, scans, or answer keys without permission.
 8. **One source of truth.** `text/question.json` is authoritative; `card.md` is its rendering. If they disagree, fix the JSON and rebuild.
 9. **Figures are embedded, not merely stored.** If the stem depends on a figure, `card.md` must contain it. A figure that exists only in `figures/` is a failed build.
-10. **Formulas are rendered, not left as raw source.** In `card.md`, math must either be rendered by the target viewer (LaTeX/KaTeX-capable viewer) or appear as `formulas/eq-*.png` images; a card that only works with a raw `$...$` dump is not finished. (If a Word file is explicitly requested, it must use native equations or formula images, never raw `$...$`.)
+10. **Formulas are checked in their destination.** Use complete LaTeX in JSON and readable equations in every delivered view. Follow [formula display](references/formula-display.md) for source notation, strict builds, renderer compatibility, and visual checks. A successful build or archive receipt alone does not establish display quality.
 11. **Pushing to an external notebook is a publication event.** Only a `reviewed`/`published` card may be exported (`scripts/export_xueji.py` refuses a `draft`), and the work folder stays the source of truth: the notebook is a projection, never the place where a card is edited.
 
 ## Choose a route
@@ -93,6 +93,7 @@ sections in order: 题目 → 答案 → 解析 → 错因诊断 → 知识点�
 | Only extract text (no card) | **Extract-only** | [`references/extraction.md`](references/extraction.md) |
 | Push a reviewed card into a xueji-notebook (学记) database | any, after sign-off | [`references/xueji-export.md`](references/xueji-export.md) |
 | Need subject-specific notation or answer style | any | [`references/subject-adapters.md`](references/subject-adapters.md) |
+| Content includes formulas, or formula display needs repair | any | [`references/formula-display.md`](references/formula-display.md) |
 | Before export/review | any | [`references/quality-gates.md`](references/quality-gates.md) |
 
 If the request is ambiguous, default to **Standard** for PDFs and **Quick** for a single image.
@@ -131,7 +132,7 @@ The exact fields are defined in [`references/output-schema.md`](references/outpu
 | Source | Is the original preserved and traceable? |
 | Text | Does the extracted text match the source, including notation and blanks? |
 | Figure | Is the topology correct, are solution marks gone, and is the figure embedded in `card.md`? |
-| Formula | Are formulas readable in `card.md` — rendered images or a math renderer, not raw `$...$`? |
+| Formula | Do the card and each delivered bank/material view preserve symbols, grouping, arrows, and complete glyphs? |
 | Answer | Is the answer independently verified, with units and signs? |
 | Diagnosis | Is the error classification specific and actionable? |
 | Export | Do `card.md` and `question.json` agree? |
@@ -182,9 +183,8 @@ The scripts are optional accelerators. Use them when Python 3.10+ is available; 
 python scripts/run.py new page.jpg --id 20260101-math-solid-001 \
   --subject mathematics --grade 高中二年级
 python scripts/run.py status work/20260101-math-solid-001    # where am I, what is stale
-python scripts/run.py finish work/20260101-math-solid-001    # preflight+build+validate, then STOP/NEXT
-#     finish is quiet on purpose: 3 lines. Every extra line is re-billed on every later
-#     request, so --verbose is opt-in only when something fails.
+python scripts/run.py finish work/20260101-math-solid-001    # images + LaTeX sidecar; strict build
+#     A successful build still needs visual review. --verbose shows child output.
 
 # 0b. Solid-geometry figure from a 3D model (hidden edges are computed, not guessed)
 #     spec copied from templates/figure-spec-3d.json
@@ -222,7 +222,7 @@ python scripts/extract_pdf.py input.pdf text --pages 1-3
 pip install -r requirements-formulas.txt   # only if you render formulas/eq-*.png
 python scripts/build_card.py text/question.json \
   --out card.md --question-out text/question.md \
-  --formula-mode both
+  --formula-mode both --strict
 
 # 4b. Printable card: one self-contained HTML file (figures + formulas inlined)
 python scripts/build_card_html.py card.md --out card.html
@@ -256,6 +256,7 @@ Core dependency: `pillow` and `numpy`. Formula images: `requirements-formulas.tx
 - [ ] Read the subject adapter **before** solving.
 - [ ] Read the figure rules **before** touching the figure.
 - [ ] Read the output schema **before** writing `question.json`.
+- [ ] For formulas, read the display reference and check the actual delivery views.
 - [ ] Install `requirements-formulas.txt` only if `card.md` needs `formulas/eq-*.png`.
 - [ ] Run the quality gates **before** calling the card finished.
 - [ ] Record every uncertainty in `review.md`.
@@ -282,4 +283,4 @@ The skill encodes **decisions and evidence**, not a hidden chain of thought. Eve
 
 ## 自动归档到教学工作台
 
-生成并检查成品后，默认完成归档步骤（用户明确只要文件时跳过）。读取 [工作台归档流程](references/workbench-archive.md)，调用随技能附带的 scripts/archive_to_workbench.py，按对应学生归档；不要只把文件复制到工作台目录。先核对学生，重名时确认 ID；未建档时不要擅自新建。成功以 ok=true 回执为准；未启动或无法连接时保留待归档清单并如实告知。报告/题目保持草稿待审核，不自动发布；重试复用原清单，修改版使用新清单。
+生成并检查成品后，默认完成归档步骤（用户明确只要文件时跳过）。读取 [工作台归档流程](references/workbench-archive.md)，调用随技能附带的 scripts/archive_to_workbench.py，按对应学生归档；不要只把文件复制到工作台目录。先核对学生，重名时确认 ID；未建档时不要擅自新建。ok=true 证明已存入，展示质量还须打开题目和资料预览核对；未启动或无法连接时保留待归档清单并如实告知。报告/题目保持草稿待审核，不自动发布；重试复用原清单，修改版使用新清单。

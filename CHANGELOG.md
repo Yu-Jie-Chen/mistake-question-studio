@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.1 — 2026-11-21
+
+- Preserve complete formula glyphs when rendering PNGs, including the final
+  parenthesis in `f(x)`, and invalidate images cached by the old renderer.
+- Make `run.py finish` generate formula images and a LaTeX sidecar by default.
+  Formula rendering failures now stop the build; an explicitly requested DOCX
+  failure is also propagated instead of reporting success.
+- Archive the self-contained HTML card, with its embedded images, rather than
+  sending Markdown with relative image references as a standalone attachment.
+- Add destination-specific formula guidance: verify number sets, set separators,
+  roots, scripts, function lettering and vector arrows in the card, question bank
+  and material preview. Build success and archive receipts do not replace visual review.
+- Fix batch indexes to find `card.md` beside `text/`, and add six regression tests
+  for formula boundaries, cache invalidation, strict delivery, HTML attachments
+  and index links. Run these and the archive-hook test in CI.
+- Retain the 0.7.0 batch preparation and formula-lint workflows.
+
 ## 0.7.0 — 2026-11-12
 
 Measured on a real nine-question batch: one turn took **62 minutes**, and **90% of it

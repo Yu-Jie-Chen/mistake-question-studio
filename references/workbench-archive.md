@@ -23,6 +23,8 @@ python scripts/archive_to_workbench.py --students
 
 ## 本技能命令
 
+有公式时先按 [公式展示检查](formula-display.md) 完成严格构建；能访问同版本工作台检查器时也执行兼容性预检。教学资料优先附自包含 `card.html`；不要单独上传依赖相对 `formulas/`、`figures/` 路径的 `card.md`。HTML 预览可能禁用 JavaScript，公式须已嵌入图片或静态 MathML。
+
 ```sh
 python scripts/archive_to_workbench.py --type mistake-question --input /工作目录/text/question.json --file /工作目录/card.html --manifest /工作目录/result.archive.json
 ```
@@ -43,12 +45,14 @@ python scripts/archive_to_workbench.py --retry /输出目录/result.archive.json
 原样重试返回同一归档记录，不重复文件、不累加错题次数。内容修改后是新版本，用新清单和新编号，不修改旧清单绕过冲突。清单、回执包含学生资料，只存本地；已加 gitignore。
 成功回执 `*.archive.receipt.json` 含 student_id、material_ids、report_id 或 question_id。只有 ok=true 才告诉用户“已归档到某同学”；刷新工作台后，在学生档案的专属资料、学情诊断、错题本查看。题目默认在待审视图。
 
+`ok=true` 只确认存储成功。打开回执对应的题目详情和每种成品的资料预览，核对题干、选项、答案、解析以及公式字形、箭头、根式和裁切；在 `review.md` 记录所见证据。页面无法访问时报告“已归档，目标展示待核验”，不能写成全部检查通过。
+
 工作台和云端 Agent 不在同一台机器时，先保留归档清单，在工作台所在机器运行重试；不要擅自把本机服务或令牌暴露公网。
 
 ## 生成命令联动
 
 `python scripts/run.py finish /工作目录 --html --archive-manifest /工作目录/result.archive.json`，可加 `--student-id`。此接口连接文源教学工作台，不使用 export_xueji.py 或学记的接口。
 
-该参数用于生成与结构检查通过后立即归档。仍须按 Skill 完成视觉/事实检查；需要先检查再归档时，使用上面的独立命令。生成失败不会提交；归档失败不会删除成品。重新生成不要覆盖或复用旧归档清单。
+该参数用于生成与结构检查通过后立即归档，并自动生成、附入自包含 HTML。仍须按 Skill 完成视觉/事实检查；首次生成需要先看成品时，使用上面的独立归档命令。生成失败不会提交；归档失败不会删除成品。重新生成不要覆盖或复用旧归档清单。
 
 客户端代码以 wenyuan-workbench/tools/archive_to_workbench.py 为维护源，三个技能携带相同副本，不要求用户把四个仓库放在一起。

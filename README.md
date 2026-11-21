@@ -170,7 +170,7 @@ git clone https://github.com/Yu-Jie-Chen/mistake-question-studio.git
 # 0) 一次完成取件：建目录 + sha256 + 拼版大图（全文 + 放大块）+ 骨架文件
 python scripts/run.py new page.jpg --id 20260101-math-solid-001 --subject mathematics --grade 高中二年级
 python scripts/run.py status work/20260101-math-solid-001
-python scripts/run.py finish work/20260101-math-solid-001   # 预检 + 生成 + 校验
+python scripts/run.py finish work/20260101-math-solid-001   # 预检 + 严格生成公式图/LaTeX副本 + 校验
 
 # 0b) 立体几何配图：由三维模型直接算出（投影、隐藏线、校验一次给全）
 python scripts/draw_solid.py figures/fig-1.spec.json --out figures/fig-1.png \
@@ -189,7 +189,7 @@ python scripts/extract_pdf.py input.pdf text --pages 1-3
 # 4) 生成卡片（只出 Markdown；要 Word 才加 --docx card.docx）
 python scripts/build_card.py text/question.json \
   --out card.md --question-out text/question.md \
-  --formula-mode both
+  --formula-mode both --strict
 
 # 5) 校验
 python scripts/validate_package.py text/question.json --root .

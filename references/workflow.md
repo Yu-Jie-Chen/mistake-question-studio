@@ -168,6 +168,8 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
 
 ## Phase 7 — Build the card
 
+For math content, read [formula display](formula-display.md): source notation, renderer compatibility, and destination checks are separate from generating files.
+
 1. Fill `text/question.json` using [`../templates/question.json`](../templates/question.json).
 2. Validate it:
 
@@ -186,7 +188,7 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
    ```bash
    python scripts/build_card.py text/question.json \
      --out card.md --question-out text/question.md \
-     --formula-mode both
+     --formula-mode both --strict
    ```
 
    Add `--docx card.docx` **only** when the user explicitly asks for a Word file.
@@ -209,8 +211,8 @@ The diagnosis must be specific enough to suggest an action. "粗心" alone is no
    - `card.docx` is out of scope unless the user asked for Word; then check that it
      contains every figure and native equations (not raw `$...$`).
 
-6. Open the Markdown and compare with the source.
-7. Record the comparison in `review.md`.
+7. Open the Markdown and any delivered HTML, compare with the source, and check formula layout at delivery size. A successful `finish` reports generation only.
+8. Record the comparison in `review.md`; after archiving also inspect the actual question and material views.
 
 The card should be usable by a student without the original page. If the reader needs the original to understand the question, extraction is incomplete.
 

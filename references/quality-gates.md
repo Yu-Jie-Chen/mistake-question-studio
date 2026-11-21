@@ -80,6 +80,8 @@ Run these gates before a card is marked `reviewed`. A blocking failure stops the
 
 ## Gate 7 — Build consistency
 
+For formulas, apply [formula display](formula-display.md) to each delivery surface.
+
 - [ ] `question.json` is valid JSON.
 - [ ] `validate_package.py` passes.
 - [ ] `card.md` renders without broken math or images.
@@ -93,11 +95,16 @@ Run these gates before a card is marked `reviewed`. A blocking failure stops the
 - [ ] The card follows the house style: `物理高三 · 学生 · 错题卡` title, ID-only header,
       figures at 60% of the column, one closing date, no 审核 section.
 - [ ] `card.html` (when delivered) opens offline: no missing image, no visible `$`.
+- [ ] Strict formula rendering passed; unknown commands and malformed math are resolved.
+- [ ] At delivery size, radicals, fractions, vector arrows, blackboard symbols, and final glyphs are complete and do not overlap.
+- [ ] When archived, the actual question detail and teaching-material preview were checked; evidence and any unverified surface are recorded in `review.md`.
+
+A zero exit code, an existing file, or `ok=true` archive receipt does not satisfy the visual checks. Keep an inaccessible destination marked unverified.
 
 If the user explicitly requested a Word file, also check: `card.docx` opens, images are embedded,
 it uses native equations or formula images with **no raw `$...$`**, and it agrees with `card.md`.
 
-**Blocking:** broken references, invalid JSON, mismatched answer between `card.md` and `question.json`, or missing figure/formula assets. (Add "raw LaTeX left in DOCX" only when a DOCX was requested.)
+**Blocking:** broken references, invalid JSON, mismatched answer between `card.md` and `question.json`, missing figure/formula assets, exposed commands, or clipped/missing mathematical symbols. (Add "raw LaTeX left in DOCX" only when a DOCX was requested.)
 
 ## Gate 8 — Teaching quality
 
